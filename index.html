@@ -276,6 +276,7 @@
     display:flex; align-items:center; justify-content:space-between; gap:36px; flex-wrap:wrap;
   }
   .cta-box > div{ flex:1 1 380px; }
+  .cta-box > .cta-actions{ flex:0 0 auto; display:flex; flex-wrap:wrap; gap:14px; }
   .cta-box .btn{ flex:0 0 auto; }
   .cta-box h2{ font-size:clamp(28px,3.6vw,44px); font-weight:800; line-height:1.1; letter-spacing:-.025em; max-width:560px; }
   .cta-box p{ color:var(--muted); font-size:17px; margin-top:14px; max-width:480px; }
@@ -362,6 +363,7 @@
   <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
   <symbol id="i-bot" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></symbol>
   <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M21 4h-7"/><path d="M10 4H3"/><path d="M21 12h-9"/><path d="M8 12H3"/><path d="M21 20h-5"/><path d="M12 20H3"/><path d="M14 2v4"/><path d="M8 10v4"/><path d="M16 18v4"/></symbol>
+  <symbol id="i-instagram" viewBox="0 0 24 24"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><path d="M17.5 6.5h.01"/></symbol>
   <symbol id="i-chat" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
 </svg>
 
@@ -664,9 +666,14 @@
           <h2>Vamos conversar sobre o seu projeto?</h2>
           <p>Conte o que você precisa e receba uma proposta sob medida para o seu negócio.</p>
         </div>
-        <a href="https://wa.me/5599991677463?text=Ol%C3%A1%2C%20quero%20falar%20com%20a%20Araujo.IA%20sobre%20um%20projeto." target="_blank" rel="noopener" class="btn btn-primary">
-          Falar pelo WhatsApp <svg class="ic"><use href="#i-arrow"/></svg>
-        </a>
+        <div class="cta-actions">
+          <a href="https://wa.me/5599991677463?text=Ol%C3%A1%2C%20quero%20falar%20com%20a%20Araujo.IA%20sobre%20um%20projeto." target="_blank" rel="noopener" class="btn btn-primary">
+            Falar pelo WhatsApp <svg class="ic"><use href="#i-arrow"/></svg>
+          </a>
+          <a href="https://www.instagram.com/arauj0.ia/" target="_blank" rel="noopener" class="btn btn-ghost">
+            <svg class="ic"><use href="#i-instagram"/></svg> @arauj0.ia
+          </a>
+        </div>
       </div>
     </div>
   </section>
@@ -698,6 +705,7 @@
         <h4>Contato</h4>
         <ul>
           <li><a href="https://wa.me/5599991677463?text=Ol%C3%A1%2C%20quero%20falar%20com%20a%20Araujo.IA." target="_blank" rel="noopener">WhatsApp</a></li>
+          <li><a href="https://www.instagram.com/arauj0.ia/" target="_blank" rel="noopener">Instagram @arauj0.ia</a></li>
         </ul>
       </div>
     </div>
