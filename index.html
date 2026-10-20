@@ -745,7 +745,7 @@
   <section class="alt" id="formulario" aria-labelledby="lead-title" hidden>
     <div class="container lead-grid">
       <div class="lead-copy rv">
-        <p class="eyebrow">Fale conosco</p>
+        <p class="eyebrow">Solicitar orçamento</p>
         <h2 id="lead-title">Vamos conversar sobre seu próximo projeto?</h2>
         <p>Gostou do meu trabalho? Deixe seus dados e entrarei em contato para entender como posso ajudar.</p>
         <ul class="checks">
@@ -790,8 +790,45 @@
             <p class="field-error" id="e-interest" hidden></p>
           </div>
 
+          <div class="f-row">
+            <div class="field" data-field="company">
+              <label for="f-company">Nome da empresa <span class="opt">(opcional)</span></label>
+              <input type="text" id="f-company" name="company" autocomplete="organization" maxlength="120">
+            </div>
+            <div class="field" data-field="deadline">
+              <label for="f-deadline">Prazo desejado <span class="opt">(opcional)</span></label>
+              <select id="f-deadline" name="deadline" aria-describedby="e-deadline">
+                <option value="">Selecione</option>
+                <option value="urgente">O mais rápido possível</option>
+                <option value="um_mes">Em até 1 mês</option>
+                <option value="tres_meses">De 1 a 3 meses</option>
+                <option value="sem_pressa">Sem pressa, ainda estou definindo</option>
+              </select>
+              <p class="field-error" id="e-deadline" hidden></p>
+            </div>
+          </div>
+
+          <div class="f-row">
+            <div class="field" data-field="budget">
+              <label for="f-budget">Investimento previsto <span class="opt">(opcional)</span></label>
+              <select id="f-budget" name="budget" aria-describedby="e-budget">
+                <option value="">Selecione</option>
+                <option value="ate_1500">Até R$ 1.500</option>
+                <option value="de_1500_a_5000">De R$ 1.500 a R$ 5.000</option>
+                <option value="de_5000_a_15000">De R$ 5.000 a R$ 15.000</option>
+                <option value="acima_15000">Acima de R$ 15.000</option>
+                <option value="conversar">Prefiro conversar sobre valores</option>
+              </select>
+              <p class="field-error" id="e-budget" hidden></p>
+            </div>
+            <div class="field" data-field="currentSite">
+              <label for="f-site">Site atual <span class="opt">(se tiver)</span></label>
+              <input type="text" id="f-site" name="currentSite" inputmode="url" autocomplete="url" maxlength="200" placeholder="www.seusite.com.br">
+            </div>
+          </div>
+
           <div class="field" data-field="message">
-            <label for="f-message">Descrição do projeto ou mensagem <span class="opt">(opcional)</span></label>
+            <label for="f-message">Conte um pouco sobre o projeto <span class="opt">(opcional)</span></label>
             <textarea id="f-message" name="message" maxlength="2000" rows="4"></textarea>
           </div>
 
@@ -990,7 +1027,9 @@
     name: document.getElementById('f-name'), email: document.getElementById('f-email'),
     phone: document.getElementById('f-phone'), interest: document.getElementById('f-interest'),
     message: document.getElementById('f-message'), consent: document.getElementById('f-consent'),
-    website: document.getElementById('f-website')
+    website: document.getElementById('f-website'),
+    company: document.getElementById('f-company'), deadline: document.getElementById('f-deadline'),
+    budget: document.getElementById('f-budget'), currentSite: document.getElementById('f-site')
   };
   var btn = document.getElementById('lead-submit');
   var spinner = btn.querySelector('.spinner');
@@ -1063,7 +1102,7 @@
     msg.textContent = text || '';
     if (input) { if (text) input.setAttribute('aria-invalid', 'true'); else input.removeAttribute('aria-invalid'); }
   }
-  function clearErrors(){ ['name','email','phone','interest','consent'].forEach(function(f){ setError(f, ''); }); }
+  function clearErrors(){ ['name','email','phone','interest','deadline','budget','consent'].forEach(function(f){ setError(f, ''); }); }
 
   function validate(){
     var errors = {};
@@ -1079,7 +1118,7 @@
 
   function showErrors(errors){
     clearErrors();
-    var order = ['name','email','phone','interest','consent'], first = null;
+    var order = ['name','email','phone','interest','deadline','budget','consent'], first = null;
     order.forEach(function(f){
       if (errors[f]) { setError(f, errors[f]); if (!first) first = f; }
     });
@@ -1121,6 +1160,7 @@
         body: JSON.stringify({
           name: els.name.value, email: els.email.value, phone: els.phone.value, interest: els.interest.value,
           message: els.message.value, consent: els.consent.checked, website: els.website.value,
+          company: els.company.value, deadline: els.deadline.value, budget: els.budget.value, currentSite: els.currentSite.value,
           token: token, key: attemptKey
         })
       });

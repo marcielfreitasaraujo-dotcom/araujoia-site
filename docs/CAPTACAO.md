@@ -17,6 +17,8 @@ Formulário "Quero receber um contato" no final do site, com banco de dados, avi
 
 Por que essa escolha: o site já roda no Netlify com deploy automático pelo GitHub. Netlify Functions e Netlify Blobs funcionam na mesma hospedagem, sem servidor, banco ou conta extras. O único serviço externo é o de e-mail.
 
+O botão **Solicitar orçamento** (e os botões "Fale conosco") leva ao questionário. Obrigatórios: nome completo, e-mail, telefone com DDD, interesse principal e o aceite do aviso de privacidade. Opcionais, para você já chegar preparado no contato: nome da empresa, prazo desejado, investimento previsto, site atual e uma descrição do projeto. Tudo vai no e-mail de aviso e fica no painel `/admin`.
+
 **O formulário só aparece no site depois de configurado.** A página consulta `/api/form-token`; enquanto `ADMIN_PASSWORD` e `FORM_SECRET` não existirem no servidor, a seção fica oculta e nenhum dado é coletado (para nunca guardar contatos que você não consiga ler).
 
 ## Variáveis de ambiente

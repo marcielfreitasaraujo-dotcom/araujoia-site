@@ -47,6 +47,10 @@ const payload = (over = {}) => ({
   phone: '(99) 98765-4321',
   interest: 'sites',
   message: 'Mensagem de TESTE <b>negrito</b>',
+  company: 'Empresa de Teste Ltda',
+  deadline: 'um_mes',
+  budget: 'de_1500_a_5000',
+  currentSite: 'www.exemplo.test',
   consent: true,
   token: oldToken(),
   key: `key-${Math.random().toString(36).slice(2)}-${Date.now()}`,
@@ -124,11 +128,29 @@ test('envio válido: salva, notifica por e-mail e responde 201', async () => {
   assert.match(mail.text, /Telefone: \(99\) 98765-4321/);
   assert.match(mail.text, /WhatsApp: https:\/\/wa\.me\/5599987654321/);
   assert.match(mail.text, /Interesse: Desenvolvimento de sites/);
+  assert.match(mail.text, /Empresa: Empresa de Teste Ltda/);
+  assert.match(mail.text, /Prazo desejado: Em até 1 mês/);
+  assert.match(mail.text, /Faixa de investimento: De R\$ 1\.500 a R\$ 5\.000/);
+  assert.match(mail.text, /Site atual: www\.exemplo\.test/);
+  assert.equal(lead.company, 'Empresa de Teste Ltda');
+  assert.equal(lead.budget.key, 'de_1500_a_5000');
   assert.match(mail.text, new RegExp(`ID do registro: ${lead.id}`));
   assert.ok(!mail.html.includes('<b>negrito</b>'), 'HTML do visitante deve ser escapado');
   assert.ok(mail.html.includes('&lt;b&gt;negrito&lt;/b&gt;'));
   assert.equal(mock.sent[0].headers['idempotency-key'], `lead-${lead.id}`);
   assert.equal(mock.sent[0].headers.authorization, 'Bearer re_chave_falsa_de_teste');
+});
+
+test('perguntas opcionais: podem ficar em branco e opções inválidas são rejeitadas', async () => {
+  const bare = await post(payload({ company: '', deadline: '', budget: '', currentSite: '' }));
+  assert.equal(bare.status, 201);
+  const mail = mock.sent[0].body;
+  for (const label of ['Empresa:', 'Prazo desejado:', 'Faixa de investimento:', 'Site atual:']) {
+    assert.ok(!mail.text.includes(label), `${label} só aparece quando preenchido`);
+  }
+  const bad = await post(payload({ email: 'outro@exemplo.test', deadline: 'ontem', budget: '__proto__' }));
+  assert.equal(bad.status, 422);
+  assert.deepEqual(Object.keys((await bad.json()).errors).sort(), ['budget', 'deadline']);
 });
 
 test('campos obrigatórios vazios retornam 422 sem salvar', async () => {

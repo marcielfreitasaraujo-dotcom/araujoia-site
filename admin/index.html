@@ -167,6 +167,10 @@
     grid.appendChild(field('E-mail', mail));
     grid.appendChild(field('Telefone', l.phone.display));
     grid.appendChild(field('Interesse', l.interest.label));
+    if (l.company) grid.appendChild(field('Empresa', l.company));
+    if (l.deadline) grid.appendChild(field('Prazo desejado', l.deadline.label));
+    if (l.budget) grid.appendChild(field('Faixa de investimento', l.budget.label));
+    if (l.currentSite) grid.appendChild(field('Site atual', l.currentSite));
     grid.appendChild(field('Consentimento', 'Aceito em ' + fmtDate(l.consent.at) + ' (aviso ' + l.consent.privacyVersion + ')'));
     card.appendChild(grid);
 

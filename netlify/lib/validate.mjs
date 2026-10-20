@@ -1,4 +1,4 @@
-import { INTERESTS } from './config.mjs';
+import { BUDGETS, DEADLINES, INTERESTS } from './config.mjs';
 
 const CONTROL = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F​-‏‪-‮⁦-⁩]/g;
 
@@ -76,6 +76,20 @@ export function validateLead(body) {
   }
 
   const message = cleanText(input.message, 2000);
+  const company = cleanLine(input.company, 120);
+  const currentSite = cleanLine(input.currentSite, 200);
+
+  const optionalChoice = (raw, table, field) => {
+    const key = typeof raw === 'string' ? raw : '';
+    if (!key) return null;
+    if (!Object.prototype.hasOwnProperty.call(table, key)) {
+      errors[field] = 'Selecione uma das opções.';
+      return null;
+    }
+    return { key, label: table[key] };
+  };
+  const deadline = optionalChoice(input.deadline, DEADLINES, 'deadline');
+  const budget = optionalChoice(input.budget, BUDGETS, 'budget');
 
   if (input.consent !== true) {
     errors.consent = 'Para enviar, é necessário aceitar o Aviso de Privacidade.';
@@ -89,6 +103,10 @@ export function validateLead(body) {
       email,
       phone,
       interest: { key: interestKey, label: INTERESTS[interestKey] },
+      company,
+      deadline,
+      budget,
+      currentSite,
       message
     }
   };

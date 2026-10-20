@@ -20,6 +20,10 @@ export function buildEmail(lead) {
     ['Telefone', lead.phone.display],
     ['WhatsApp', waLink],
     ['Interesse', lead.interest.label],
+    ...(lead.company ? [['Empresa', lead.company]] : []),
+    ...(lead.deadline ? [['Prazo desejado', lead.deadline.label]] : []),
+    ...(lead.budget ? [['Faixa de investimento', lead.budget.label]] : []),
+    ...(lead.currentSite ? [['Site atual', lead.currentSite]] : []),
     ['Mensagem', lead.message || '—'],
     ['Data do contato', when],
     ['ID do registro', lead.id]

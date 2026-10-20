@@ -89,7 +89,7 @@ export async function createDevServer() {
 }
 
 // Servidor falso do Resend para testar o fluxo de e-mail sem credenciais reais.
-export function startMockEmail(port = 4010, { fail = false } = {}) {
+export function startMockEmail(port = 4010, { fail = false, log = false } = {}) {
   const sent = [];
   const server = http.createServer(async (req, res) => {
     const chunks = [];
@@ -100,6 +100,7 @@ export function startMockEmail(port = 4010, { fail = false } = {}) {
       return;
     }
     sent.push({ headers: req.headers, body });
+    if (log) console.log(`\n--- E-MAIL SIMULADO ---\nPara: ${body.to}\nAssunto: ${body.subject}\n\n${body.text}\n-----------------------\n`);
     res.writeHead(200, { 'Content-Type': 'application/json' }).end('{"id":"mock"}');
   });
   return new Promise((resolve) => server.listen(port, '127.0.0.1', () => resolve({ server, sent })));
@@ -108,7 +109,7 @@ export function startMockEmail(port = 4010, { fail = false } = {}) {
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
   const port = Number(process.env.PORT || 5173);
   if (process.argv.includes('--mock') || process.env.MOCK_EMAIL === '1') {
-    const { sent } = await startMockEmail(4010);
+    const { sent } = await startMockEmail(4010, { log: true });
     process.env.RESEND_API_URL = 'http://127.0.0.1:4010/emails';
     process.env.RESEND_API_KEY = process.env.RESEND_API_KEY || 're_mock_key';
     process.env.NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || 'dono@exemplo.test';
