@@ -64,7 +64,7 @@
   h1,h2,h3,h4{ font-family:'Manrope','Inter',system-ui,sans-serif; margin:0; color:var(--text); }
   p{ margin:0; }
   ul{ margin:0; padding:0; list-style:none; }
-  img{ max-width:100%; display:block; }
+  img{ max-width:100%; height:auto; display:block; }
   a{ color:inherit; }
   ::selection{ background:var(--accent); color:var(--accent-ink); }
   :focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:6px; }
@@ -237,7 +237,7 @@
   /* ---------- about ---------- */
   .about{ display:grid; grid-template-columns:minmax(0,380px) minmax(0,1fr); gap:clamp(36px,6vw,88px); align-items:center; }
   .portrait{ border-radius:22px; overflow:hidden; border:1px solid var(--line-strong); box-shadow:0 40px 80px -40px rgba(0,0,0,.85); background:var(--surface); }
-  .portrait img{ width:100%; aspect-ratio:4/5; object-fit:cover; }
+  .portrait img{ width:100%; height:auto; aspect-ratio:4/5; object-fit:cover; object-position:center 25%; }
   .portrait figcaption{ padding:16px 20px; border-top:1px solid var(--line); background:var(--surface); font-size:14px; color:var(--muted); }
   .portrait figcaption strong{ color:var(--text); font-weight:600; display:block; }
   .about h2{ font-size:clamp(28px,3.5vw,42px); font-weight:700; line-height:1.14; letter-spacing:-.02em; margin:14px 0 22px; }
