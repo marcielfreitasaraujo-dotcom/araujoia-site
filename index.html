@@ -390,11 +390,14 @@
   .intro-bar{ position:absolute; left:0; right:0; bottom:0; height:2px; background:rgba(255,255,255,.07); }
   .intro-bar span{ display:block; height:100%; background:var(--accent); transform-origin:left; transform:scaleX(0); }
   #skip-intro{
-    position:absolute; right:clamp(18px,3vw,34px); bottom:clamp(20px,3.4vw,36px); z-index:2; cursor:pointer;
-    font:500 13px/1 'Inter',sans-serif; color:var(--muted); background:rgba(255,255,255,.04);
-    border:1px solid var(--line-strong); padding:11px 18px; border-radius:999px; transition:color .2s, border-color .2s, background .2s;
+    position:absolute; right:clamp(18px,3vw,34px); bottom:max(clamp(22px,3.4vw,36px), env(safe-area-inset-bottom)); z-index:10; cursor:pointer;
+    display:inline-flex; align-items:center; gap:8px; min-height:46px; padding:0 22px; border-radius:999px;
+    font:600 14px/1 'Inter',sans-serif; color:var(--text); background:rgba(7,11,17,.62);
+    -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+    border:1px solid rgba(255,255,255,.28); transition:color .2s, border-color .2s, background .2s;
   }
-  #skip-intro:hover{ color:var(--text); border-color:rgba(255,255,255,.3); background:rgba(255,255,255,.08); }
+  #skip-intro .ic{ width:16px; height:16px; }
+  #skip-intro:hover{ border-color:var(--accent); color:var(--accent); background:rgba(7,11,17,.82); }
 
   @media (max-width:860px){ .hero h1{ letter-spacing:-.022em; } }
   @media (prefers-reduced-motion: reduce){
@@ -429,10 +432,10 @@
 
 <!-- ============ INTRO ============ -->
 <div id="intro">
-  <video id="intro-video-bg" class="iv-bg" src="intro-logo.mp4" muted playsinline autoplay preload="auto" aria-hidden="true" tabindex="-1"></video>
-  <video id="intro-video" class="iv-main" src="intro-logo.mp4" poster="intro-poster.jpg" muted playsinline autoplay preload="auto" aria-hidden="true" tabindex="-1"></video>
+  <video id="intro-video-bg" class="iv-bg" src="intro.mp4" muted playsinline autoplay preload="auto" aria-hidden="true" tabindex="-1"></video>
+  <video id="intro-video" class="iv-main" src="intro.mp4" poster="intro-poster.jpg" muted playsinline autoplay preload="auto" aria-hidden="true" tabindex="-1"></video>
   <div class="intro-bar"><span id="intro-progress"></span></div>
-  <button id="skip-intro" type="button">Pular intro</button>
+  <button id="skip-intro" type="button" aria-label="Pular a introdução">Pular intro <svg class="ic"><use href="#i-arrow"/></svg></button>
 </div>
 
 <!-- ============ HEADER ============ -->
@@ -924,7 +927,7 @@
   var vMain = document.getElementById('intro-video');
   var vBg = document.getElementById('intro-video-bg');
   var bar = document.getElementById('intro-progress');
-  var END_T = 6.4;
+  var END_T = 7.8;
   var done = false;
 
   function finish(){
@@ -962,7 +965,7 @@
       if (p && p.catch) p.catch(function(){ if (v === vMain) finish(); });
     });
 
-    setTimeout(function(){ if (vMain.currentTime === 0) finish(); }, 5000);
+    setTimeout(function(){ if (vMain.currentTime === 0) finish(); }, 7000);
     setTimeout(finish, 12000);
   }
 
