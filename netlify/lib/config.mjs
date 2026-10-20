@@ -21,7 +21,7 @@ export const BUDGETS = {
   conversar: 'Prefiro conversar sobre valores'
 };
 
-export const STATUSES =['novo', 'em_atendimento', 'contatado', 'concluido'];
+export const STATUSES = ['novo', 'em_atendimento', 'contatado', 'concluido'];
 
 export const PRIVACY_VERSION = '2026-10-20';
 
@@ -31,12 +31,25 @@ export function env(name) {
   return process.env[name] || '';
 }
 
-// O formulário só é aberto ao público quando o proprietário consegue ler os leads
-// (senha do painel) e a proteção anti-bot está ativa (segredo de assinatura).
-export function isEnabled() {
-  return Boolean(env('ADMIN_PASSWORD') && env('FORM_SECRET'));
+// Canal 1 (padrão, sem credenciais): o contato também é enviado ao Netlify Forms, que guarda o envio
+// no painel do Netlify e avisa por e-mail quem for configurado em Forms > Notifications.
+// Defina NETLIFY_FORMS=off para desligar.
+export function formsEnabled() {
+  return process.env.NETLIFY_FORMS !== 'off';
 }
 
+// Canal 2 (opcional): e-mail transacional via Resend.
 export function emailConfigured() {
   return Boolean(env('RESEND_API_KEY') && env('NOTIFY_EMAIL'));
+}
+
+// O formulário só é aberto ao público quando existe ao menos um jeito de o proprietário receber/ler os contatos:
+// Netlify Forms (padrão) ou o painel /admin (ADMIN_PASSWORD).
+export function isEnabled() {
+  return formsEnabled() || Boolean(env('ADMIN_PASSWORD'));
+}
+
+// Há algum canal de aviso ativo?
+export function anyNotificationChannel() {
+  return formsEnabled() || emailConfigured();
 }

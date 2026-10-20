@@ -1,7 +1,8 @@
-import { NOTIFICATION_MAX_ATTEMPTS, PRIVACY_VERSION, STATUSES, emailConfigured } from './config.mjs';
+import { NOTIFICATION_MAX_ATTEMPTS, PRIVACY_VERSION, STATUSES, anyNotificationChannel } from './config.mjs';
 import { openStore } from './store.mjs';
 import { newLeadId, sha256 } from './security.mjs';
 import { sendNotification } from './email.mjs';
+import { forwardToNetlifyForms } from './forms.mjs';
 
 const DUPLICATE_WINDOW_MS = 10 * 60 * 1000;
 
@@ -11,7 +12,7 @@ export async function stores() {
 }
 
 // Cria o lead de forma idempotente. Retorna { lead, duplicate }.
-export async function createLead({ leads, meta }, value, { idempotencyKey, ipHash }) {
+export async function createLead({ leads, meta }, value, { idempotencyKey, ipHash, origin }) {
   const idemKey = idempotencyKey ? `idem/${sha256(idempotencyKey)}` : null;
   if (idemKey) {
     const seen = await meta.get(idemKey);
@@ -40,7 +41,8 @@ export async function createLead({ leads, meta }, value, { idempotencyKey, ipHas
     status: 'novo',
     history: [{ at: now, status: 'novo' }],
     consent: { given: true, at: now, privacyVersion: PRIVACY_VERSION },
-    notification: { status: 'pending', attempts: 0, lastAttemptAt: null, sentAt: null, lastError: null },
+    notification: { status: 'pending', channels: {}, attempts: 0, lastAttemptAt: null, sentAt: null, lastError: null },
+    origin: origin || '',
     ipHash
   };
 
@@ -51,18 +53,37 @@ export async function createLead({ leads, meta }, value, { idempotencyKey, ipHas
   return { lead, duplicate: false };
 }
 
+// Executa os canais de aviso ainda não concluídos (Resend e Netlify Forms). Um canal que já deu certo
+// nunca é repetido, então o reenvio não gera avisos duplicados.
 export async function notifyLead({ leads }, lead) {
-  const result = await sendNotification(lead);
-  const attempts = (lead.notification?.attempts || 0) + (result.status === 'not_configured' ? 0 : 1);
+  const previous = lead.notification || {};
+  const channels = { ...(previous.channels || {}) };
+  const errors = [];
+  let attempted = false;
+
+  if (channels.resend !== 'sent') {
+    const r = await sendNotification(lead);
+    if (r.status === 'sent') { channels.resend = 'sent'; attempted = true; }
+    else if (r.status === 'failed') { channels.resend = 'failed'; errors.push(`resend:${r.error}`); attempted = true; }
+  }
+  if (channels.forms !== 'sent') {
+    const f = await forwardToNetlifyForms(lead);
+    if (f.status === 'sent') { channels.forms = 'sent'; attempted = true; }
+    else if (f.status === 'failed') { channels.forms = 'failed'; errors.push(`forms:${f.error}`); attempted = true; }
+  }
+
+  const values = Object.values(channels);
+  const status = values.includes('failed') ? 'failed' : values.includes('sent') ? 'sent' : 'not_configured';
   lead.notification = {
-    status: result.status === 'sent' ? 'sent' : result.status === 'failed' ? 'failed' : 'not_configured',
-    attempts,
+    status,
+    channels,
+    attempts: (previous.attempts || 0) + (attempted ? 1 : 0),
     lastAttemptAt: new Date().toISOString(),
-    sentAt: result.status === 'sent' ? new Date().toISOString() : lead.notification?.sentAt || null,
-    lastError: result.error || null
+    sentAt: status === 'sent' ? previous.sentAt || new Date().toISOString() : previous.sentAt || null,
+    lastError: errors.length ? errors.join(',') : null
   };
   await leads.set(`lead/${lead.id}`, lead);
-  if (result.status === 'failed') console.error(`[leads] notification_failed id=${lead.id} reason=${result.error}`);
+  if (status === 'failed') console.error(`[leads] notification_failed id=${lead.id} reason=${errors.join(',')}`);
   return lead.notification;
 }
 
@@ -117,7 +138,7 @@ export async function purgeExpired(db, days = 365) {
 export function needsNotificationRetry(lead) {
   const n = lead.notification;
   if (!n) return false;
-  if (n.status === 'not_configured') return emailConfigured();
+  if (n.status === 'not_configured') return anyNotificationChannel();
   if (n.status !== 'pending' && n.status !== 'failed') return false;
   if ((n.attempts || 0) >= NOTIFICATION_MAX_ATTEMPTS) return false;
   if (n.lastAttemptAt && Date.now() - Date.parse(n.lastAttemptAt) < 10 * 60 * 1000) return false;

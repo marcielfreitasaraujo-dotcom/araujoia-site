@@ -95,8 +95,8 @@
   </header>
   <div class="wrap">
     <div class="banner" id="email-banner" hidden>
-      O envio de e-mail ainda não está configurado no servidor. Os contatos continuam sendo salvos aqui
-      e a notificação pode ser reenviada depois da configuração (veja a documentação do projeto).
+      Nenhum canal de aviso está ativo no servidor. Os contatos continuam sendo salvos aqui
+      e o aviso pode ser reenviado depois da configuração (veja a documentação do projeto).
     </div>
     <div class="tools">
       <div><label for="q">Buscar por nome, e-mail ou telefone</label><input id="q" type="search" placeholder="Ex.: Maria, maria@, 99999"></div>
@@ -116,7 +116,7 @@
 <script>
 (function(){
   var STATUS_LABEL = { novo:'Novo', em_atendimento:'Em atendimento', contatado:'Contatado', concluido:'Concluído' };
-  var NOTIF_LABEL = { sent:'E-mail enviado', failed:'E-mail falhou', pending:'E-mail pendente', not_configured:'E-mail não configurado' };
+  var NOTIF_LABEL = { sent:'Aviso enviado', failed:'Aviso falhou', pending:'Aviso pendente', not_configured:'Aviso não configurado' };
   var loginView = document.getElementById('login-view');
   var appView = document.getElementById('app-view');
   var listEl = document.getElementById('leads');
@@ -157,7 +157,7 @@
     var name = el('div', 'lead-name', l.name);
     if (l.status === 'novo') name.appendChild(el('span', 'badge new', 'NOVO'));
     var n = l.notification || {};
-    name.appendChild(el('span', 'badge ' + (n.status || ''), NOTIF_LABEL[n.status] || 'E-mail'));
+    name.appendChild(el('span', 'badge ' + (n.status || ''), NOTIF_LABEL[n.status] || 'Aviso'));
     head.appendChild(name);
     head.appendChild(el('div', 'when', fmtDate(l.createdAt)));
     card.appendChild(head);

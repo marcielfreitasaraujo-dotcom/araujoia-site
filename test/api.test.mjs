@@ -5,7 +5,7 @@ import { mkdtempSync, rmSync, readFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { startMockEmail } from '../scripts/dev-server.mjs';
-import { sign } from '../netlify/lib/security.mjs';
+import { getSecret, makeSessionToken, sign } from '../netlify/lib/security.mjs';
 import leadFn from '../netlify/functions/lead.mjs';
 import tokenFn from '../netlify/functions/form-token.mjs';
 import adminFn from '../netlify/functions/admin.mjs';
@@ -21,6 +21,8 @@ const baseEnv = () => {
   process.env.LEADS_STORAGE = 'file';
   process.env.LEADS_DATA_DIR = tmp;
   process.env.FORM_SECRET = SECRET;
+  process.env.NETLIFY_FORMS = 'off';
+  delete process.env.FORMS_SUBMIT_URL;
   process.env.ADMIN_PASSWORD = PASSWORD;
   process.env.RESEND_API_KEY = 're_chave_falsa_de_teste';
   process.env.NOTIFY_EMAIL = 'dono@exemplo.test';
@@ -38,7 +40,7 @@ beforeEach(() => {
 });
 afterEach(() => rmSync(tmp, { recursive: true, force: true }));
 
-const oldToken = () => sign({ t: Date.now() - 10_000, n: 'teste' });
+const oldToken = (secret = SECRET) => sign({ t: Date.now() - 10_000, n: 'teste' }, secret);
 const newIp = () => `10.1.${Math.floor(++ipCounter / 250)}.${ipCounter % 250}`;
 
 const payload = (over = {}) => ({
@@ -95,6 +97,83 @@ test('formulário desativado até configurar senha e segredo', async () => {
   assert.equal(t.ok, false);
   assert.equal((await post(payload())).status, 503);
   assert.equal((await admin('session')).status, 503);
+});
+
+const emails = () => mock.sent.filter((m) => !m.isForm);
+const formPosts = () => mock.sent.filter((m) => m.isForm);
+
+test('sem nenhuma variável: o formulário abre pelo Netlify Forms e o segredo é gerado sozinho', async () => {
+  delete process.env.ADMIN_PASSWORD;
+  delete process.env.FORM_SECRET;
+  delete process.env.RESEND_API_KEY;
+  delete process.env.NOTIFY_EMAIL;
+  delete process.env.NETLIFY_FORMS;
+  process.env.FORMS_SUBMIT_URL = `http://127.0.0.1:${mockPort}/forms`;
+
+  const t = await (await tokenFn(new Request(`${HOST}/api/form-token`))).json();
+  assert.equal(t.ok, true);
+  assert.equal((await admin('session')).status, 503, 'painel continua exigindo ADMIN_PASSWORD');
+
+  const meta = await openStore('meta');
+  const generated = await getSecret(meta);
+  assert.match(generated, /^[0-9a-f]{64}$/);
+  assert.equal(await getSecret(meta), generated, 'o segredo é estável');
+
+  const res = await post(payload({ token: sign({ t: Date.now() - 10_000, n: 'x' }, generated) }));
+  assert.equal(res.status, 201);
+  const [lead] = await allLeads();
+  assert.equal(lead.notification.status, 'sent');
+  assert.deepEqual(lead.notification.channels, { forms: 'sent' });
+  assert.equal(emails().length, 0);
+  assert.equal(formPosts().length, 1);
+  const f = formPosts()[0].body;
+  assert.equal(f['form-name'], 'orcamento');
+  assert.equal(f.nome, 'Cliente Teste Automatizado');
+  assert.equal(f.telefone, '(99) 98765-4321');
+  assert.equal(f.whatsapp, 'https://wa.me/5599987654321');
+  assert.equal(f.interesse, 'Desenvolvimento de sites');
+  assert.equal(f.empresa, 'Empresa de Teste Ltda');
+  assert.equal(f.prazo, 'Em até 1 mês');
+  assert.equal(f.investimento, 'De R$ 1.500 a R$ 5.000');
+  assert.equal(f.id_do_registro, lead.id);
+});
+
+test('Netlify Forms: falha preserva o cadastro e o reenvio não duplica o aviso', async () => {
+  delete process.env.NETLIFY_FORMS;
+  process.env.FORMS_SUBMIT_URL = 'http://127.0.0.1:9/forms';
+  const res = await post(payload());
+  assert.equal(res.status, 201);
+  let [lead] = await allLeads();
+  assert.equal(lead.notification.status, 'failed');
+  assert.equal(lead.notification.channels.forms, 'failed');
+
+  process.env.FORMS_SUBMIT_URL = `http://127.0.0.1:${mockPort}/forms`;
+  const cookie = await login();
+  assert.equal((await (await admin(`leads/${lead.id}/notify`, { method: 'POST', cookie })).json()).notification.status, 'sent');
+  assert.equal(formPosts().length, 1);
+  // reenviar de novo não manda outro aviso: o canal já concluiu
+  await admin(`leads/${lead.id}/notify`, { method: 'POST', cookie });
+  assert.equal(formPosts().length, 1);
+  assert.equal((await allLeads()).length, 1);
+});
+
+test('dois canais: se só um falha, o reenvio repete apenas o que falhou', async () => {
+  delete process.env.NETLIFY_FORMS;
+  process.env.FORMS_SUBMIT_URL = 'http://127.0.0.1:9/forms';
+  assert.equal((await post(payload())).status, 201);
+  assert.equal(emails().length, 1, 'e-mail enviado');
+  let [lead] = await allLeads();
+  assert.deepEqual(lead.notification.channels, { resend: 'sent', forms: 'failed' });
+  assert.equal(lead.notification.status, 'failed');
+
+  process.env.FORMS_SUBMIT_URL = `http://127.0.0.1:${mockPort}/forms`;
+  const cookie = await login();
+  await admin(`leads/${lead.id}/notify`, { method: 'POST', cookie });
+  assert.equal(emails().length, 1, 'e-mail não é reenviado');
+  assert.equal(formPosts().length, 1);
+  [lead] = await allLeads();
+  assert.deepEqual(lead.notification.channels, { resend: 'sent', forms: 'sent' });
+  assert.equal(lead.notification.status, 'sent');
 });
 
 test('token do formulário é emitido quando configurado', async () => {
@@ -179,7 +258,7 @@ test('honeypot: robô recebe sucesso falso e nada é salvo', async () => {
 });
 
 test('token ausente, inválido ou rápido demais é recusado', async () => {
-  for (const token of [undefined, 'abc.def', sign({ t: Date.now(), n: 'x' }), sign({ t: Date.now() - 10_000 }, 'outro-segredo')]) {
+  for (const token of [undefined, 'abc.def', sign({ t: Date.now(), n: 'x' }, SECRET), sign({ t: Date.now() - 10_000 }, 'outro-segredo')]) {
     const res = await post(payload({ token }));
     assert.equal(res.status, 400, String(token));
     assert.equal((await res.json()).error, 'token');
@@ -270,9 +349,9 @@ test('painel: exige autenticação e rejeita senha errada e cookie adulterado', 
   assert.equal((await admin('login', { method: 'POST', body: { password: 'errada' } })).status, 401);
   assert.equal((await admin('login', { method: 'POST', body: {} })).status, 401);
   assert.equal((await admin('leads', { cookie: 'aia_admin=adulterado.xyz' })).status, 401);
-  const forged = `aia_admin=${sign({ role: 'admin', exp: Date.now() + 1e6 }, 'segredo-errado')}`;
+  const forged = `aia_admin=${makeSessionToken('segredo-errado', Date.now() + 1e6)}`;
   assert.equal((await admin('leads', { cookie: forged })).status, 401);
-  const expired = `aia_admin=${sign({ role: 'admin', exp: Date.now() - 1 }, SECRET)}`;
+  const expired = `aia_admin=${makeSessionToken(SECRET, Date.now() - 1)}`;
   assert.equal((await admin('leads', { cookie: expired })).status, 401);
 });
 

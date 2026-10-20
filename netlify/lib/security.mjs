@@ -3,13 +3,25 @@ import { env } from './config.mjs';
 
 const b64 = (buf) => Buffer.from(buf).toString('base64url');
 
-export function sign(payload, secret = env('FORM_SECRET')) {
+// Segredo de assinatura (tokens anti-spam e sessões). Usa FORM_SECRET se existir; senão gera um
+// valor aleatório uma única vez e guarda no armazenamento privado do servidor.
+export async function getSecret(meta) {
+  if (env('FORM_SECRET')) return env('FORM_SECRET');
+  let stored = await meta.get('secret/form');
+  if (!stored || !stored.v) {
+    await meta.set('secret/form', { v: crypto.randomBytes(32).toString('hex') });
+    stored = await meta.get('secret/form');
+  }
+  return stored.v;
+}
+
+export function sign(payload, secret) {
   const body = b64(JSON.stringify(payload));
   const mac = crypto.createHmac('sha256', secret).update(body).digest('base64url');
   return `${body}.${mac}`;
 }
 
-export function verify(token, secret = env('FORM_SECRET')) {
+export function verify(token, secret) {
   if (typeof token !== 'string' || token.length > 600 || !secret) return null;
   const [body, mac] = token.split('.');
   if (!body || !mac) return null;
@@ -33,17 +45,17 @@ export function sha256(value) {
 }
 
 // Pseudonimiza o IP (não guardamos o endereço bruto).
-export function hashIp(ip) {
-  return crypto.createHmac('sha256', env('FORM_SECRET') || 'dev').update(String(ip)).digest('hex').slice(0, 20);
+export function hashIp(ip, secret) {
+  return crypto.createHmac('sha256', secret).update(String(ip)).digest('hex').slice(0, 20);
 }
 
-export function newFormToken() {
-  return sign({ t: Date.now(), n: crypto.randomBytes(8).toString('hex') });
+export function newFormToken(secret) {
+  return sign({ t: Date.now(), n: crypto.randomBytes(8).toString('hex') }, secret);
 }
 
 // Token emitido pela página: precisa existir há pelo menos minAgeMs (robôs enviam instantaneamente).
-export function checkFormToken(token, { minAgeMs = 3000, maxAgeMs = 6 * 60 * 60 * 1000 } = {}) {
-  const data = verify(token);
+export function checkFormToken(token, secret, { minAgeMs = 3000, maxAgeMs = 6 * 60 * 60 * 1000 } = {}) {
+  const data = verify(token, secret);
   if (!data || typeof data.t !== 'number') return 'invalid';
   const age = Date.now() - data.t;
   if (age < minAgeMs) return 'too_fast';
@@ -67,8 +79,16 @@ export function newLeadId() {
 export const SESSION_COOKIE = 'aia_admin';
 const SESSION_SECONDS = 8 * 60 * 60;
 
-export function sessionCookie(req) {
-  const token = sign({ role: 'admin', exp: Date.now() + SESSION_SECONDS * 1000 }, adminSecret());
+function adminSecret(secret) {
+  return `${secret}:admin:${sha256(env('ADMIN_PASSWORD')).slice(0, 16)}`;
+}
+
+export function makeSessionToken(secret, exp = Date.now() + SESSION_SECONDS * 1000) {
+  return sign({ role: 'admin', exp }, adminSecret(secret));
+}
+
+export function sessionCookie(req, secret) {
+  const token = makeSessionToken(secret);
   const secure = new URL(req.url).protocol === 'https:' || req.headers.get('x-forwarded-proto') === 'https';
   return `${SESSION_COOKIE}=${token}; HttpOnly; SameSite=Strict; Path=/api/admin; Max-Age=${SESSION_SECONDS}${secure ? '; Secure' : ''}`;
 }
@@ -77,14 +97,11 @@ export function clearSessionCookie() {
   return `${SESSION_COOKIE}=; HttpOnly; SameSite=Strict; Path=/api/admin; Max-Age=0`;
 }
 
-function adminSecret() {
-  return `${env('FORM_SECRET')}:admin:${sha256(env('ADMIN_PASSWORD')).slice(0, 16)}`;
-}
-
-export function isAdmin(req) {
+export function isAdmin(req, secret) {
+  if (!env('ADMIN_PASSWORD')) return false;
   const header = req.headers.get('cookie') || '';
   const match = header.split(/;\s*/).find((c) => c.startsWith(`${SESSION_COOKIE}=`));
   if (!match) return false;
-  const data = verify(match.slice(SESSION_COOKIE.length + 1), adminSecret());
+  const data = verify(match.slice(SESSION_COOKIE.length + 1), adminSecret(secret));
   return Boolean(data && data.role === 'admin' && typeof data.exp === 'number' && data.exp > Date.now());
 }

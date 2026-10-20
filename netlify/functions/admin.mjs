@@ -1,6 +1,6 @@
-import { emailConfigured, env, isEnabled, STATUSES } from '../lib/config.mjs';
+import { anyNotificationChannel, env, STATUSES } from '../lib/config.mjs';
 import { HttpError, clientIp, json, originAllowed, readJson } from '../lib/http.mjs';
-import { clearSessionCookie, hashIp, isAdmin, rateLimit, safeEqual, sessionCookie } from '../lib/security.mjs';
+import { clearSessionCookie, getSecret, hashIp, isAdmin, rateLimit, safeEqual, sessionCookie } from '../lib/security.mjs';
 import { deleteLead, getLead, listLeads, notifyLead, setStatus, stores } from '../lib/leads.mjs';
 
 const fold = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -11,12 +11,14 @@ export default async (req, context) => {
   const parts = route.split('/').filter(Boolean);
 
   try {
-    if (!isEnabled()) return json({ ok: false, error: 'unavailable' }, 503);
+    if (!env('ADMIN_PASSWORD')) return json({ ok: false, error: 'unavailable' }, 503);
     if (req.method !== 'GET' && !originAllowed(req)) return json({ ok: false, error: 'forbidden' }, 403);
 
+    const db = await stores();
+    const secret = await getSecret(db.meta);
+
     if (route === 'login' && req.method === 'POST') {
-      const db = await stores();
-      const ipHash = hashIp(clientIp(req, context));
+      const ipHash = hashIp(clientIp(req, context), secret);
       if (!(await rateLimit(db.meta, 'login', ipHash, 8, 900))) {
         return json({ ok: false, error: 'rate_limited' }, 429, { 'Retry-After': '900' });
       }
@@ -25,20 +27,18 @@ export default async (req, context) => {
       if (!password || !safeEqual(password, env('ADMIN_PASSWORD'))) {
         return json({ ok: false, error: 'invalid_credentials' }, 401);
       }
-      return json({ ok: true }, 200, { 'Set-Cookie': sessionCookie(req) });
+      return json({ ok: true }, 200, { 'Set-Cookie': sessionCookie(req, secret) });
     }
 
     if (route === 'logout' && req.method === 'POST') {
       return json({ ok: true }, 200, { 'Set-Cookie': clearSessionCookie() });
     }
 
-    if (!isAdmin(req)) return json({ ok: false, error: 'unauthorized' }, 401);
+    if (!isAdmin(req, secret)) return json({ ok: false, error: 'unauthorized' }, 401);
 
     if (route === 'session' && req.method === 'GET') {
-      return json({ ok: true, emailConfigured: emailConfigured(), statuses: STATUSES });
+      return json({ ok: true, emailConfigured: anyNotificationChannel(), statuses: STATUSES });
     }
-
-    const db = await stores();
 
     if (route === 'leads' && req.method === 'GET') {
       const q = fold(url.searchParams.get('q')).trim();

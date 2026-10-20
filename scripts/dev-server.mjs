@@ -94,13 +94,19 @@ export function startMockEmail(port = 4010, { fail = false, log = false } = {}) 
   const server = http.createServer(async (req, res) => {
     const chunks = [];
     for await (const c of req) chunks.push(c);
-    const body = JSON.parse(Buffer.concat(chunks).toString() || '{}');
+    const raw = Buffer.concat(chunks).toString();
+    const isForm = String(req.headers['content-type'] || '').includes('application/x-www-form-urlencoded');
+    const body = isForm ? Object.fromEntries(new URLSearchParams(raw)) : JSON.parse(raw || '{}');
     if (fail) {
       res.writeHead(500, { 'Content-Type': 'application/json' }).end('{"message":"mock failure"}');
       return;
     }
-    sent.push({ headers: req.headers, body });
-    if (log) console.log(`\n--- E-MAIL SIMULADO ---\nPara: ${body.to}\nAssunto: ${body.subject}\n\n${body.text}\n-----------------------\n`);
+    sent.push({ headers: req.headers, body, url: req.url, isForm });
+    if (log && !isForm) console.log(`\n--- E-MAIL SIMULADO ---\nPara: ${body.to}\nAssunto: ${body.subject}\n\n${body.text}\n-----------------------\n`);
+    if (log && isForm) {
+      const lines = Object.entries(body).map(([k, v]) => `${k}: ${v}`).join('\n');
+      console.log(`\n--- ENVIO SIMULADO AO NETLIFY FORMS ---\n${lines}\n---------------------------------------\n`);
+    }
     res.writeHead(200, { 'Content-Type': 'application/json' }).end('{"id":"mock"}');
   });
   return new Promise((resolve) => server.listen(port, '127.0.0.1', () => resolve({ server, sent })));
@@ -111,6 +117,7 @@ if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) 
   if (process.argv.includes('--mock') || process.env.MOCK_EMAIL === '1') {
     const { sent } = await startMockEmail(4010, { log: true });
     process.env.RESEND_API_URL = 'http://127.0.0.1:4010/emails';
+    process.env.FORMS_SUBMIT_URL = 'http://127.0.0.1:4010/forms';
     process.env.RESEND_API_KEY = process.env.RESEND_API_KEY || 're_mock_key';
     process.env.NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || 'dono@exemplo.test';
     console.log('E-mail simulado ativo (nada é enviado de verdade).');

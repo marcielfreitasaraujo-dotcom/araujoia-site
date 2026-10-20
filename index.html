@@ -899,6 +899,14 @@
   </div>
 </footer>
 
+<!-- Declara o formulário ao Netlify Forms (os envios chegam pela função /api/lead). Não é exibido. -->
+<form name="orcamento" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden aria-hidden="true">
+  <input type="text" name="bot-field" tabindex="-1" autocomplete="off">
+  <input type="text" name="nome"><input type="text" name="email"><input type="text" name="telefone"><input type="text" name="whatsapp">
+  <input type="text" name="interesse"><input type="text" name="empresa"><input type="text" name="prazo"><input type="text" name="investimento">
+  <input type="text" name="site_atual"><textarea name="mensagem"></textarea><input type="text" name="data_do_contato"><input type="text" name="id_do_registro">
+</form>
+
 <a class="wa" href="https://wa.me/5599991677463?text=Ol%C3%A1%2C%20quero%20falar%20com%20a%20Araujo.IA." target="_blank" rel="noopener" aria-label="Falar com a Araujo.IA no WhatsApp">
   <svg class="ic"><use href="#i-whatsapp"/></svg>
 </a>

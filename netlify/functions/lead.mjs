@@ -1,6 +1,6 @@
 import { isEnabled } from '../lib/config.mjs';
 import { HttpError, clientIp, json, originAllowed, readJson } from '../lib/http.mjs';
-import { checkFormToken, hashIp, rateLimit } from '../lib/security.mjs';
+import { checkFormToken, getSecret, hashIp, rateLimit } from '../lib/security.mjs';
 import { validateLead } from '../lib/validate.mjs';
 import { createLead, notifyLead, stores } from '../lib/leads.mjs';
 
@@ -11,8 +11,9 @@ export default async (req, context) => {
 
   try {
     const body = await readJson(req);
-    const ipHash = hashIp(clientIp(req, context));
     const db = await stores();
+    const secret = await getSecret(db.meta);
+    const ipHash = hashIp(clientIp(req, context), secret);
 
     // Limite por IP: 8 tentativas a cada 10 minutos e 30 por dia.
     const allowed =
@@ -25,14 +26,18 @@ export default async (req, context) => {
       return json({ ok: true }, 201);
     }
 
-    const tokenState = checkFormToken(body.token);
+    const tokenState = checkFormToken(body.token, secret);
     if (tokenState !== 'ok') return json({ ok: false, error: 'token', reason: tokenState }, 400);
 
     const checked = validateLead(body);
     if (!checked.ok) return json({ ok: false, error: 'validation', errors: checked.errors }, 422);
 
     const key = typeof body.key === 'string' && /^[A-Za-z0-9-]{16,64}$/.test(body.key) ? body.key : null;
-    const { lead, duplicate } = await createLead(db, checked.value, { idempotencyKey: key, ipHash });
+    const { lead, duplicate } = await createLead(db, checked.value, {
+      idempotencyKey: key,
+      ipHash,
+      origin: new URL(req.url).origin
+    });
     if (duplicate) return json({ ok: true, id: lead.id, duplicate: true }, 200);
 
     // O cadastro já está salvo. Falha no e-mail não invalida o cadastro: fica registrada para reenvio.
