@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="color-scheme" content="dark">
+<title>Painel de contatos | Araujo.IA</title>
+<link rel="icon" type="image/png" href="../icon-512.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#070B11; --bg-2:#0A1018; --surface:#0E151E; --surface-2:#121B27; --line:rgba(255,255,255,.08);
+    --line-strong:rgba(255,255,255,.16); --text:#E9EEF4; --muted:#9BA8B7; --accent:#2BD4C0; --accent-ink:#04201D;
+    --danger:#FF8A8A; --warn:#F5C46B; --ok:#6EE7A8; }
+  *,*::before,*::after{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--text); font:16px/1.55 'Inter',system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3{ font-family:'Manrope','Inter',sans-serif; margin:0; }
+  [hidden]{ display:none !important; }
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; border-radius:6px; }
+  .wrap{ width:min(100% - 32px, 1100px); margin-inline:auto; }
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; height:42px; padding:0 18px; border-radius:10px;
+    border:1px solid var(--line-strong); background:rgba(255,255,255,.04); color:var(--text); font:600 14px 'Inter',sans-serif; cursor:pointer; text-decoration:none; }
+  .btn:hover{ background:rgba(255,255,255,.09); }
+  .btn.primary{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+  .btn.primary:hover{ filter:brightness(1.08); }
+  .btn.danger{ color:var(--danger); border-color:rgba(255,138,138,.4); margin-left:auto; }
+  .btn.danger:hover{ background:rgba(255,138,138,.12); }
+  .btn.sm{ height:34px; padding:0 12px; font-size:13px; border-radius:8px; }
+  .btn[disabled]{ opacity:.55; cursor:not-allowed; }
+  input,select{ width:100%; height:44px; padding:0 14px; border-radius:10px; border:1px solid var(--line-strong); background:var(--surface);
+    color:var(--text); font:15px 'Inter',sans-serif; }
+  select{ cursor:pointer; }
+  label{ display:block; font-size:13.5px; font-weight:500; color:var(--muted); margin-bottom:6px; }
+
+  .login{ min-height:100vh; display:grid; place-items:center; padding:24px; }
+  .card{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:28px; }
+  .login .card{ width:min(100%, 400px); }
+  .login h1{ font-size:24px; margin-bottom:6px; }
+  .login p{ color:var(--muted); font-size:14.5px; margin:0 0 20px; }
+  .msg{ font-size:14px; margin-top:12px; min-height:20px; }
+  .msg.err{ color:var(--danger); }
+
+  header.top{ border-bottom:1px solid var(--line); background:var(--bg-2); position:sticky; top:0; z-index:5; }
+  header.top .wrap{ display:flex; align-items:center; justify-content:space-between; gap:12px; height:64px; }
+  header.top h1{ font-size:18px; }
+  header.top h1 span{ color:var(--accent); }
+  .tools{ display:grid; grid-template-columns:1fr 180px 160px; gap:12px; margin:22px 0 10px; }
+  @media (max-width:720px){ .tools{ grid-template-columns:1fr; } }
+  .summary{ color:var(--muted); font-size:14px; margin-bottom:14px; }
+  .banner{ border:1px solid rgba(245,196,107,.4); background:rgba(245,196,107,.08); color:var(--warn); border-radius:12px; padding:12px 16px; font-size:14px; margin-top:18px; }
+
+  .leads{ display:grid; gap:14px; padding-bottom:60px; }
+  .lead{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:18px 20px; }
+  .lead.novo{ border-color:rgba(43,212,192,.45); }
+  .lead-head{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; justify-content:space-between; }
+  .lead-name{ font:700 18px 'Manrope',sans-serif; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .badge{ font:600 11.5px 'Inter',sans-serif; letter-spacing:.04em; padding:4px 9px; border-radius:999px; border:1px solid var(--line-strong); color:var(--muted); }
+  .badge.new{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+  .badge.sent{ color:var(--ok); border-color:rgba(110,231,168,.4); }
+  .badge.failed{ color:var(--danger); border-color:rgba(255,138,138,.45); }
+  .badge.pending,.badge.not_configured{ color:var(--warn); border-color:rgba(245,196,107,.45); }
+  .when{ color:var(--muted); font-size:13.5px; }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px 24px; margin:14px 0; }
+  .field small{ display:block; color:var(--muted); font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+  .field div{ overflow-wrap:anywhere; }
+  .field a{ color:var(--accent); text-decoration:none; }
+  .field a:hover{ text-decoration:underline; }
+  .message{ background:var(--bg-2); border:1px solid var(--line); border-radius:10px; padding:12px 14px; white-space:pre-wrap; overflow-wrap:anywhere; font-size:14.5px; margin-bottom:14px; }
+  .actions{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  .actions select{ width:200px; height:36px; font-size:14px; }
+  .empty{ text-align:center; color:var(--muted); padding:60px 0; }
+</style>
+</head>
+<body>
+
+<main class="login" id="login-view">
+  <form class="card" id="login-form" autocomplete="on">
+    <h1>Painel de contatos</h1>
+    <p>Área restrita ao proprietário do site.</p>
+    <label for="password">Senha de acesso</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+    <button class="btn primary" type="submit" style="width:100%;margin-top:16px" id="login-btn">Entrar</button>
+    <div class="msg err" id="login-msg" role="alert"></div>
+  </form>
+</main>
+
+<div id="app-view" hidden>
+  <header class="top">
+    <div class="wrap">
+      <h1>Contatos <span>Araujo.IA</span></h1>
+      <button class="btn sm" id="logout-btn" type="button">Sair</button>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="banner" id="email-banner" hidden>
+      O envio de e-mail ainda não está configurado no servidor. Os contatos continuam sendo salvos aqui
+      e a notificação pode ser reenviada depois da configuração (veja a documentação do projeto).
+    </div>
+    <div class="tools">
+      <div><label for="q">Buscar por nome, e-mail ou telefone</label><input id="q" type="search" placeholder="Ex.: Maria, maria@, 99999"></div>
+      <div><label for="status-filter">Status</label>
+        <select id="status-filter">
+          <option value="">Todos</option><option value="novo">Novo</option><option value="em_atendimento">Em atendimento</option>
+          <option value="contatado">Contatado</option><option value="concluido">Concluído</option>
+        </select></div>
+      <div><label for="order">Ordenar por data</label>
+        <select id="order"><option value="desc">Mais recentes primeiro</option><option value="asc">Mais antigos primeiro</option></select></div>
+    </div>
+    <div class="summary" id="summary" aria-live="polite"></div>
+    <div class="leads" id="leads"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var STATUS_LABEL = { novo:'Novo', em_atendimento:'Em atendimento', contatado:'Contatado', concluido:'Concluído' };
+  var NOTIF_LABEL = { sent:'E-mail enviado', failed:'E-mail falhou', pending:'E-mail pendente', not_configured:'E-mail não configurado' };
+  var loginView = document.getElementById('login-view');
+  var appView = document.getElementById('app-view');
+  var listEl = document.getElementById('leads');
+  var timer;
+
+  function api(path, opts){
+    opts = opts || {};
+    opts.credentials = 'same-origin';
+    opts.headers = Object.assign({ 'Content-Type':'application/json' }, opts.headers || {});
+    return fetch('/api/admin/' + path, opts);
+  }
+  function el(tag, cls, text){
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function fmtDate(iso){
+    return new Intl.DateTimeFormat('pt-BR', { dateStyle:'short', timeStyle:'short', timeZone:'America/Sao_Paulo' }).format(new Date(iso));
+  }
+  function field(label, node){
+    var f = el('div', 'field');
+    f.appendChild(el('small', null, label));
+    var v = el('div');
+    if (typeof node === 'string') v.textContent = node; else v.appendChild(node);
+    f.appendChild(v);
+    return f;
+  }
+  function copy(text, btn){
+    var done = function(){ var old = btn.textContent; btn.textContent = 'Copiado!'; setTimeout(function(){ btn.textContent = old; }, 1500); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done);
+    else { var t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); done(); }
+  }
+
+  function renderLead(l){
+    var card = el('article', 'lead' + (l.status === 'novo' ? ' novo' : ''));
+    var head = el('div', 'lead-head');
+    var name = el('div', 'lead-name', l.name);
+    if (l.status === 'novo') name.appendChild(el('span', 'badge new', 'NOVO'));
+    var n = l.notification || {};
+    name.appendChild(el('span', 'badge ' + (n.status || ''), NOTIF_LABEL[n.status] || 'E-mail'));
+    head.appendChild(name);
+    head.appendChild(el('div', 'when', fmtDate(l.createdAt)));
+    card.appendChild(head);
+
+    var grid = el('div', 'grid');
+    var mail = el('a', null, l.email); mail.href = 'mailto:' + l.email;
+    grid.appendChild(field('E-mail', mail));
+    grid.appendChild(field('Telefone', l.phone.display));
+    grid.appendChild(field('Interesse', l.interest.label));
+    grid.appendChild(field('Consentimento', 'Aceito em ' + fmtDate(l.consent.at) + ' (aviso ' + l.consent.privacyVersion + ')'));
+    card.appendChild(grid);
+
+    if (l.message) card.appendChild(el('div', 'message', l.message));
+
+    var actions = el('div', 'actions');
+    var wa = el('a', 'btn sm primary', 'Abrir WhatsApp');
+    var first = l.name.split(' ')[0];
+    wa.href = 'https://wa.me/' + l.phone.whatsapp + '?text=' + encodeURIComponent('Olá, ' + first + '! Aqui é da Araujo.IA. Recebi seu contato pelo site.');
+    wa.target = '_blank'; wa.rel = 'noopener';
+    actions.appendChild(wa);
+    var cp = el('button', 'btn sm', 'Copiar telefone'); cp.type = 'button';
+    cp.addEventListener('click', function(){ copy(l.phone.display, cp); });
+    actions.appendChild(cp);
+
+    var sel = document.createElement('select');
+    sel.setAttribute('aria-label', 'Status de ' + l.name);
+    Object.keys(STATUS_LABEL).forEach(function(k){
+      var o = el('option', null, STATUS_LABEL[k]); o.value = k; if (k === l.status) o.selected = true; sel.appendChild(o);
+    });
+    sel.addEventListener('change', function(){
+      sel.disabled = true;
+      api('leads/' + l.id, { method:'PATCH', body: JSON.stringify({ status: sel.value }) })
+        .then(function(r){ if (!r.ok) throw new Error(); return load(); })
+        .catch(function(){ alert('Não foi possível atualizar o status.'); load(); });
+    });
+    actions.appendChild(sel);
+
+    if (n.status !== 'sent') {
+      var rn = el('button', 'btn sm', 'Reenviar notificação'); rn.type = 'button';
+      rn.addEventListener('click', function(){
+        rn.disabled = true; rn.textContent = 'Enviando…';
+        api('leads/' + l.id + '/notify', { method:'POST' }).then(function(){ load(); }).catch(function(){ load(); });
+      });
+      actions.appendChild(rn);
+    }
+    var del = el('button', 'btn sm danger', 'Excluir'); del.type = 'button';
+    del.addEventListener('click', function(){
+      if (!confirm('Excluir definitivamente o contato de ' + l.name + '? Esta ação não pode ser desfeita.')) return;
+      del.disabled = true;
+      api('leads/' + l.id, { method:'DELETE' }).then(function(r){ if (!r.ok) throw new Error(); load(); })
+        .catch(function(){ alert('Não foi possível excluir o contato.'); del.disabled = false; });
+    });
+    actions.appendChild(del);
+    card.appendChild(actions);
+    return card;
+  }
+
+  function load(){
+    var qs = new URLSearchParams({
+      q: document.getElementById('q').value.trim(),
+      status: document.getElementById('status-filter').value,
+      order: document.getElementById('order').value
+    });
+    return api('leads?' + qs).then(function(r){
+      if (r.status === 401) { showLogin(); throw new Error('auth'); }
+      return r.json();
+    }).then(function(data){
+      listEl.textContent = '';
+      var novos = data.leads.filter(function(l){ return l.status === 'novo'; }).length;
+      document.getElementById('summary').textContent = data.total + (data.total === 1 ? ' contato' : ' contatos') + (novos ? ' · ' + novos + ' novo' + (novos > 1 ? 's' : '') : '');
+      if (!data.leads.length) { listEl.appendChild(el('div', 'empty', 'Nenhum contato encontrado.')); return; }
+      data.leads.forEach(function(l){ listEl.appendChild(renderLead(l)); });
+    }).catch(function(e){ if (e.message !== 'auth') document.getElementById('summary').textContent = 'Não foi possível carregar os contatos.'; });
+  }
+
+  function showLogin(){ appView.hidden = true; loginView.hidden = false; document.getElementById('password').value = ''; }
+  function showApp(session){
+    loginView.hidden = true; appView.hidden = false;
+    document.getElementById('email-banner').hidden = !!session.emailConfigured;
+    load();
+  }
+
+  document.getElementById('login-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    var btn = document.getElementById('login-btn'), msg = document.getElementById('login-msg');
+    msg.textContent = ''; btn.disabled = true;
+    api('login', { method:'POST', body: JSON.stringify({ password: document.getElementById('password').value }) })
+      .then(function(r){
+        if (r.status === 429) { msg.textContent = 'Muitas tentativas. Aguarde alguns minutos.'; return null; }
+        if (r.status === 503) { msg.textContent = 'O painel ainda não foi configurado no servidor.'; return null; }
+        if (!r.ok) { msg.textContent = 'Senha incorreta.'; return null; }
+        return api('session').then(function(s){ return s.json(); });
+      })
+      .then(function(session){ if (session) showApp(session); })
+      .catch(function(){ msg.textContent = 'Erro de conexão. Tente novamente.'; })
+      .then(function(){ btn.disabled = false; });
+  });
+  document.getElementById('logout-btn').addEventListener('click', function(){
+    api('logout', { method:'POST' }).then(showLogin, showLogin);
+  });
+  ['q','status-filter','order'].forEach(function(id){
+    document.getElementById(id).addEventListener(id === 'q' ? 'input' : 'change', function(){ clearTimeout(timer); timer = setTimeout(load, id === 'q' ? 250 : 0); });
+  });
+
+  api('session').then(function(r){ return r.ok ? r.json() : null; }).then(function(s){ if (s) showApp(s); }).catch(function(){});
+})();
+</script>
+</body>
+</html>

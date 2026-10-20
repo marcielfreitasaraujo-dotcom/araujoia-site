@@ -276,7 +276,11 @@
     display:flex; align-items:center; justify-content:space-between; gap:36px; flex-wrap:wrap;
   }
   .cta-box > div{ flex:1 1 380px; }
-  .cta-box > .cta-actions{ flex:0 0 auto; display:flex; flex-wrap:wrap; gap:14px; }
+  .cta-box > .cta-actions{ flex:0 0 auto; max-width:100%; display:flex; flex-wrap:wrap; gap:14px; }
+  @media (max-width:560px){
+    .cta-box > .cta-actions{ flex:1 1 100%; }
+    .cta-box .cta-actions .btn{ flex:1 1 100%; padding:0 20px; }
+  }
   .cta-box .btn{ flex:0 0 auto; }
   .cta-box h2{ font-size:clamp(28px,3.6vw,44px); font-weight:800; line-height:1.1; letter-spacing:-.025em; max-width:560px; }
   .cta-box p{ color:var(--muted); font-size:17px; margin-top:14px; max-width:480px; }
@@ -296,16 +300,69 @@
     margin-top:48px; padding-top:22px; border-top:1px solid var(--line); display:flex; justify-content:space-between;
     flex-wrap:wrap; gap:10px; color:var(--muted); font-size:13px;
   }
+  .foot-legal{ color:inherit; text-decoration:underline; text-underline-offset:3px; }
+  .foot-legal:hover{ color:var(--accent); }
   @media (max-width:760px){ .foot-grid{ grid-template-columns:1fr 1fr; } .foot-grid > div:first-child{ grid-column:1/-1; } }
 
   /* ---------- whatsapp ---------- */
   .wa{
     position:fixed; right:22px; bottom:22px; z-index:55; width:58px; height:58px; border-radius:50%;
     background:#25D366; color:#fff; display:grid; place-items:center; text-decoration:none;
-    box-shadow:0 14px 34px -10px rgba(0,0,0,.65); transition:transform .2s, box-shadow .2s;
+    box-shadow:0 14px 34px -10px rgba(0,0,0,.65); transition:transform .2s, box-shadow .2s, opacity .25s;
   }
+  .wa.wa-hide{ opacity:0; pointer-events:none; transform:scale(.9); }
   .wa:hover{ transform:translateY(-2px) scale(1.04); box-shadow:0 18px 40px -10px rgba(0,0,0,.7); }
   .wa .ic{ width:28px; height:28px; stroke-width:1.9; }
+
+  /* ---------- lead form ---------- */
+  [hidden]{ display:none !important; }
+  .lead-grid{ display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); gap:clamp(32px,5vw,72px); align-items:start; }
+  .lead-copy h2{ font-size:clamp(28px,3.5vw,42px); font-weight:700; line-height:1.14; letter-spacing:-.02em; margin:14px 0 16px; }
+  .lead-copy > p{ color:var(--muted); font-size:17px; line-height:1.65; max-width:460px; }
+  .lead-copy .checks{ margin-top:28px; flex-direction:column; gap:12px; }
+  .lead-card{
+    position:relative; background:var(--surface); border:1px solid var(--line-strong); border-radius:22px;
+    padding:clamp(22px,3vw,36px); box-shadow:0 40px 80px -46px rgba(0,0,0,.85), 0 0 90px -50px rgba(43,212,192,.45);
+  }
+  .f-row{ display:grid; grid-template-columns:1fr 1fr; gap:0 16px; }
+  .field{ margin-bottom:18px; min-width:0; }
+  .field label{ display:block; font:600 14px/1.3 'Inter',sans-serif; margin-bottom:8px; }
+  .field .opt{ color:var(--muted); font-weight:400; }
+  .field input[type=text], .field input[type=email], .field input[type=tel], .field select, .field textarea{
+    width:100%; height:50px; padding:0 14px; border-radius:10px; border:1px solid var(--line-strong);
+    background:#0A1119; color:var(--text); font:16px/1.4 'Inter',sans-serif; transition:border-color .2s, box-shadow .2s;
+  }
+  .field textarea{ height:auto; min-height:112px; padding:12px 14px; resize:vertical; }
+  .field select{
+    appearance:none; -webkit-appearance:none; cursor:pointer; padding-right:42px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239BA8B7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 14px center;
+  }
+  .field input:hover, .field select:hover, .field textarea:hover{ border-color:rgba(255,255,255,.28); }
+  .field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible{
+    outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(43,212,192,.22);
+  }
+  .field.has-error input, .field.has-error select, .field.has-error textarea{ border-color:#FF8A8A; }
+  .field-error{ color:#FF9C9C; font-size:13.5px; margin-top:7px; }
+  .consent{ display:flex; gap:12px; align-items:flex-start; font-size:14px; line-height:1.55; color:var(--muted); }
+  .consent input{ width:20px; height:20px; margin:2px 0 0; accent-color:var(--accent); flex-shrink:0; cursor:pointer; }
+  .consent label{ font-weight:400; margin:0; cursor:pointer; }
+  .consent a{ color:var(--accent); }
+  .hp{ position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden; }
+  .lead-submit{ width:100%; margin-top:6px; height:54px; font-size:16px; }
+  .lead-submit[disabled]{ opacity:.8; cursor:progress; transform:none; }
+  .spinner{ width:18px; height:18px; border-radius:50%; border:2px solid rgba(4,32,29,.28); border-top-color:var(--accent-ink); animation:spin .7s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .lead-note{ font-size:13px; color:var(--muted); margin-top:14px; line-height:1.55; }
+  .lead-note a{ color:var(--accent); }
+  .lead-alert{ border-radius:12px; padding:14px 16px; font-size:15px; margin-bottom:18px; border:1px solid rgba(255,138,138,.45); background:rgba(255,138,138,.08); color:#FFB4B4; }
+  .lead-success{ text-align:center; padding:clamp(18px,3vw,34px) 6px; }
+  .lead-success .ok{ width:58px; height:58px; border-radius:50%; margin:0 auto 18px; display:grid; place-items:center; background:var(--accent-soft); color:var(--accent); border:1px solid rgba(43,212,192,.4); }
+  .lead-success .ok .ic{ width:28px; height:28px; stroke-width:2.4; }
+  .lead-success h3{ font-size:24px; font-weight:800; letter-spacing:-.02em; margin-bottom:10px; }
+  .lead-success p{ color:var(--muted); font-size:16.5px; line-height:1.65; max-width:420px; margin:0 auto 22px; }
+  @media (max-width:900px){ .lead-grid{ grid-template-columns:1fr; } }
+  @media (max-width:560px){ .f-row{ grid-template-columns:1fr; } }
 
   /* ---------- reveal ---------- */
   .js .rv{ opacity:0; transform:translateY(18px); transition:opacity .8s ease, transform .8s cubic-bezier(.2,.7,.2,1); transition-delay:var(--d,0s); }
@@ -393,7 +450,7 @@
       <a href="#contato">Contato</a>
     </nav>
     <div class="header-actions">
-      <a href="#contato" class="btn btn-primary btn-sm">Fale conosco</a>
+      <a href="#contato" class="btn btn-primary btn-sm" data-lead-cta>Fale conosco</a>
       <button class="menu-btn" id="menu-btn" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="mobile-menu">
         <svg class="ic"><use href="#i-menu"/></svg>
       </button>
@@ -413,7 +470,7 @@
   <a href="#projetos" class="ml">Projetos</a>
   <a href="#sobre" class="ml">Sobre</a>
   <a href="#contato" class="ml">Contato</a>
-  <a href="#contato" class="btn btn-primary ml-cta">Fale conosco</a>
+  <a href="#contato" class="btn btn-primary ml-cta" data-lead-cta>Fale conosco</a>
 </div>
 
 <main id="conteudo">
@@ -426,7 +483,7 @@
         <h1 class="rv" style="--d:.08s">Soluções digitais <em>sob medida</em> para o seu negócio</h1>
         <p class="hero-sub rv" style="--d:.16s">Desenvolvemos sites, sistemas web, automações e soluções com inteligência artificial. Trabalhamos de perto com cada empresa, do planejamento ao lançamento.</p>
         <div class="hero-cta rv" style="--d:.24s">
-          <a href="#contato" class="btn btn-primary">Solicitar orçamento <svg class="ic"><use href="#i-arrow"/></svg></a>
+          <a href="#contato" class="btn btn-primary" data-lead-cta>Solicitar orçamento <svg class="ic"><use href="#i-arrow"/></svg></a>
           <a href="#projetos" class="btn btn-ghost">Ver projetos</a>
         </div>
         <ul class="checks rv" style="--d:.32s">
@@ -681,6 +738,89 @@
     </div>
   </section>
 
+  <!-- ============ CAPTAÇÃO DE CLIENTES ============ -->
+  <section class="alt" id="formulario" aria-labelledby="lead-title" hidden>
+    <div class="container lead-grid">
+      <div class="lead-copy rv">
+        <p class="eyebrow">Fale conosco</p>
+        <h2 id="lead-title">Vamos conversar sobre seu próximo projeto?</h2>
+        <p>Gostou do meu trabalho? Deixe seus dados e entrarei em contato para entender como posso ajudar.</p>
+        <ul class="checks">
+          <li><svg class="ic"><use href="#i-check"/></svg>Retorno por telefone, WhatsApp ou e-mail</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Seus dados são usados só para responder a você</li>
+        </ul>
+      </div>
+
+      <div class="lead-card rv" style="--d:.08s">
+        <form id="lead-form" novalidate>
+          <div id="lead-alert" class="lead-alert" role="alert" hidden></div>
+
+          <div class="field" data-field="name">
+            <label for="f-name">Nome completo</label>
+            <input type="text" id="f-name" name="name" autocomplete="name" maxlength="120" required aria-describedby="e-name">
+            <p class="field-error" id="e-name" hidden></p>
+          </div>
+
+          <div class="f-row">
+            <div class="field" data-field="email">
+              <label for="f-email">E-mail</label>
+              <input type="email" id="f-email" name="email" autocomplete="email" inputmode="email" maxlength="254" required aria-describedby="e-email">
+              <p class="field-error" id="e-email" hidden></p>
+            </div>
+            <div class="field" data-field="phone">
+              <label for="f-phone">Telefone com DDD</label>
+              <input type="tel" id="f-phone" name="phone" autocomplete="tel-national" inputmode="tel" placeholder="(00) 00000-0000" maxlength="20" required aria-describedby="e-phone">
+              <p class="field-error" id="e-phone" hidden></p>
+            </div>
+          </div>
+
+          <div class="field" data-field="interest">
+            <label for="f-interest">Interesse principal</label>
+            <select id="f-interest" name="interest" required aria-describedby="e-interest">
+              <option value="" selected disabled>Selecione uma opção</option>
+              <option value="sites">Desenvolvimento de sites</option>
+              <option value="sistemas">Sistemas e aplicações web</option>
+              <option value="automacao">Automação de processos</option>
+              <option value="software">Desenvolvimento de software</option>
+              <option value="outro">Outro serviço</option>
+            </select>
+            <p class="field-error" id="e-interest" hidden></p>
+          </div>
+
+          <div class="field" data-field="message">
+            <label for="f-message">Descrição do projeto ou mensagem <span class="opt">(opcional)</span></label>
+            <textarea id="f-message" name="message" maxlength="2000" rows="4"></textarea>
+          </div>
+
+          <div class="hp" aria-hidden="true">
+            <label for="f-website">Não preencha este campo</label>
+            <input type="text" id="f-website" name="website" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div class="field" data-field="consent">
+            <div class="consent">
+              <input type="checkbox" id="f-consent" name="consent" required aria-describedby="e-consent">
+              <label for="f-consent">Li e concordo com o <a href="privacidade.html" target="_blank" rel="noopener">Aviso de Privacidade</a> e autorizo o contato por telefone, WhatsApp ou e-mail para responder à minha solicitação.</label>
+            </div>
+            <p class="field-error" id="e-consent" hidden></p>
+          </div>
+
+          <button type="submit" class="btn btn-primary lead-submit" id="lead-submit">
+            <span class="spinner" hidden></span><span class="label">Quero receber um contato</span>
+          </button>
+          <p class="lead-note">Usaremos seus dados apenas para responder a esta solicitação. Saiba mais no <a href="privacidade.html" target="_blank" rel="noopener">Aviso de Privacidade</a>.</p>
+        </form>
+
+        <div class="lead-success" id="lead-success" role="status" tabindex="-1" hidden>
+          <div class="ok"><svg class="ic"><use href="#i-check"/></svg></div>
+          <h3>Recebemos seus dados!</h3>
+          <p>Obrigado pelo interesse. Entrarei em contato assim que possível.</p>
+          <button type="button" class="btn btn-ghost" id="lead-again">Enviar outra solicitação</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <!-- ============ FOOTER ============ -->
@@ -713,7 +853,7 @@
       </div>
     </div>
     <div class="foot-bottom">
-      <span>© 2026 Araujo.IA. Todos os direitos reservados.</span>
+      <span>© 2026 Araujo.IA. Todos os direitos reservados. · <a href="privacidade.html" class="foot-legal">Aviso de Privacidade</a></span>
       <span>Feitos para você</span>
     </div>
   </div>
@@ -827,6 +967,205 @@
   }
 
   window.addEventListener('pageshow', function(e){ if (e.persisted) toTop(); });
+})();
+</script>
+
+<script>
+/* ---------- Captação de clientes ---------- */
+(function(){
+  var section = document.getElementById('formulario');
+  var form = document.getElementById('lead-form');
+  if (!section || !form) return;
+
+  var MIN_TOKEN_AGE = 3200;
+  var DDDS = {};
+  [11,12,13,14,15,16,17,18,19,21,22,24,27,28,31,32,33,34,35,37,38,41,42,43,44,45,46,47,48,49,51,53,54,55,
+   61,62,63,64,65,66,67,68,69,71,73,74,75,77,79,81,82,83,84,85,86,87,88,89,91,92,93,94,95,96,97,98,99]
+    .forEach(function(n){ DDDS[n] = true; });
+
+  var els = {
+    name: document.getElementById('f-name'), email: document.getElementById('f-email'),
+    phone: document.getElementById('f-phone'), interest: document.getElementById('f-interest'),
+    message: document.getElementById('f-message'), consent: document.getElementById('f-consent'),
+    website: document.getElementById('f-website')
+  };
+  var btn = document.getElementById('lead-submit');
+  var spinner = btn.querySelector('.spinner');
+  var label = btn.querySelector('.label');
+  var alertBox = document.getElementById('lead-alert');
+  var success = document.getElementById('lead-success');
+
+  var token = null, tokenAt = 0, sending = false;
+  var attemptKey = newKey();
+
+  function newKey(){
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return String(Date.now()) + '-' + Math.random().toString(16).slice(2) + '0000000000';
+  }
+
+  function fetchToken(){
+    return fetch('/api/form-token', { cache:'no-store', credentials:'same-origin' })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(j){
+        if (j && j.ok && j.token) { token = j.token; tokenAt = Date.now(); return true; }
+        return false;
+      })
+      .catch(function(){ return false; });
+  }
+
+  /* A seção só aparece quando o formulário está configurado no servidor. */
+  fetchToken().then(function(ok){
+    if (!ok) return;
+    section.hidden = false;
+    document.querySelectorAll('[data-lead-cta]').forEach(function(a){ a.setAttribute('href', '#formulario'); });
+    var wa = document.querySelector('.wa');
+    if (wa && 'IntersectionObserver' in window) {
+      new IntersectionObserver(function(entries){
+        wa.classList.toggle('wa-hide', entries[0].isIntersecting);
+      }, { threshold: .15 }).observe(section);
+    }
+  });
+
+  function normalizePhone(raw){
+    var d = String(raw || '').replace(/\D/g, '');
+    if (d.indexOf('0055') === 0) d = d.slice(4);
+    else if (d.indexOf('55') === 0 && (d.length === 12 || d.length === 13)) d = d.slice(2);
+    if (d.length !== 10 && d.length !== 11) return null;
+    if (!DDDS[Number(d.slice(0, 2))]) return null;
+    var n = d.slice(2);
+    if (n.length === 9 && n.charAt(0) !== '9') return null;
+    if (n.length === 8 && !/[2-5]/.test(n.charAt(0))) return null;
+    if (/^(\d)\1+$/.test(n)) return null;
+    return d;
+  }
+
+  els.phone.addEventListener('input', function(){
+    var d = els.phone.value.replace(/\D/g, '');
+    if (d.indexOf('55') === 0 && d.length > 11) d = d.slice(2);
+    d = d.slice(0, 11);
+    var out = d;
+    if (d.length > 6) out = '(' + d.slice(0,2) + ') ' + d.slice(2, d.length > 10 ? 7 : 6) + '-' + d.slice(d.length > 10 ? 7 : 6);
+    else if (d.length > 2) out = '(' + d.slice(0,2) + ') ' + d.slice(2);
+    else if (d.length) out = '(' + d;
+    els.phone.value = out;
+  });
+
+  function setError(field, text){
+    var wrap = form.querySelector('[data-field="' + field + '"]');
+    var msg = document.getElementById('e-' + field);
+    if (!wrap || !msg) return;
+    var input = wrap.querySelector('input, select, textarea');
+    wrap.classList.toggle('has-error', !!text);
+    msg.hidden = !text;
+    msg.textContent = text || '';
+    if (input) { if (text) input.setAttribute('aria-invalid', 'true'); else input.removeAttribute('aria-invalid'); }
+  }
+  function clearErrors(){ ['name','email','phone','interest','consent'].forEach(function(f){ setError(f, ''); }); }
+
+  function validate(){
+    var errors = {};
+    var name = els.name.value.replace(/\s+/g, ' ').trim();
+    var words = name.split(' ').filter(function(w){ return /[A-Za-zÀ-ÿ]/.test(w); });
+    if (name.length < 5 || words.length < 2) errors.name = 'Informe seu nome completo.';
+    if (!/^[^\s@<>()\[\]\\,;:"]+@[^\s@<>()\[\]\\,;:"]+\.[^\s@<>()\[\]\\,;:"]{2,}$/.test(els.email.value.trim())) errors.email = 'Informe um e-mail válido.';
+    if (!normalizePhone(els.phone.value)) errors.phone = 'Informe um telefone válido com DDD.';
+    if (!els.interest.value) errors.interest = 'Selecione o interesse principal.';
+    if (!els.consent.checked) errors.consent = 'Para enviar, é necessário aceitar o Aviso de Privacidade.';
+    return errors;
+  }
+
+  function showErrors(errors){
+    clearErrors();
+    var order = ['name','email','phone','interest','consent'], first = null;
+    order.forEach(function(f){
+      if (errors[f]) { setError(f, errors[f]); if (!first) first = f; }
+    });
+    if (first) {
+      var wrap = form.querySelector('[data-field="' + first + '"]');
+      var input = wrap && wrap.querySelector('input, select, textarea');
+      if (input) input.focus();
+    }
+  }
+
+  ['name','email','phone','interest','consent'].forEach(function(f){
+    var input = els[f];
+    input.addEventListener(f === 'interest' || f === 'consent' ? 'change' : 'input', function(){ setError(f, ''); });
+  });
+
+  function setSending(on){
+    sending = on;
+    btn.disabled = on;
+    btn.setAttribute('aria-busy', on ? 'true' : 'false');
+    spinner.hidden = !on;
+    label.textContent = on ? 'Enviando…' : 'Quero receber um contato';
+  }
+
+  function showAlert(text){ alertBox.textContent = text; alertBox.hidden = false; }
+  function hideAlert(){ alertBox.hidden = true; alertBox.textContent = ''; }
+
+  function wait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+  function send(attempt){
+    var remaining = MIN_TOKEN_AGE - (Date.now() - tokenAt);
+    var ready = token && remaining <= 0 ? Promise.resolve(true)
+      : token ? wait(remaining).then(function(){ return true; })
+      : fetchToken().then(function(ok){ return ok ? wait(MIN_TOKEN_AGE).then(function(){ return true; }) : false; });
+    return ready.then(function(ok){
+      if (!ok) throw new Error('token');
+      return fetch('/api/lead', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: els.name.value, email: els.email.value, phone: els.phone.value, interest: els.interest.value,
+          message: els.message.value, consent: els.consent.checked, website: els.website.value,
+          token: token, key: attemptKey
+        })
+      });
+    }).then(function(res){
+      return res.json().catch(function(){ return {}; }).then(function(data){
+        if (res.status === 400 && data.error === 'token' && attempt < 1) {
+          token = null;
+          return send(attempt + 1);
+        }
+        return { status: res.status, data: data };
+      });
+    });
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if (sending) return;
+    hideAlert();
+    var errors = validate();
+    if (Object.keys(errors).length) { showErrors(errors); return; }
+    clearErrors();
+    setSending(true);
+
+    send(0).then(function(result){
+      if (result.status === 201 || result.status === 200) {
+        form.reset();
+        clearErrors();
+        attemptKey = newKey();
+        token = null;
+        fetchToken();
+        form.hidden = true;
+        success.hidden = false;
+        success.focus();
+        return;
+      }
+      if (result.status === 422 && result.data && result.data.errors) { showErrors(result.data.errors); return; }
+      if (result.status === 429) { showAlert('Recebemos muitas tentativas. Aguarde alguns minutos e tente novamente.'); return; }
+      showAlert('Não foi possível enviar seus dados agora. Tente novamente em alguns instantes.');
+    }).catch(function(){
+      showAlert('Não foi possível enviar seus dados agora. Tente novamente em alguns instantes.');
+    }).then(function(){ setSending(false); });
+  });
+
+  document.getElementById('lead-again').addEventListener('click', function(){
+    success.hidden = true;
+    form.hidden = false;
+    els.name.focus();
+  });
 })();
 </script>
 

@@ -1,0 +1,18 @@
+{
+  "name": "araujoia-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Site da Araujo.IA com captacao de clientes (Netlify Functions + Netlify Blobs)",
+  "scripts": {
+    "dev": "node scripts/dev-server.mjs",
+    "dev:mock": "node scripts/dev-server.mjs --mock",
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "dependencies": {
+    "@netlify/blobs": "^11.1.5"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
