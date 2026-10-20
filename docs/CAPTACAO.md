@@ -1,6 +1,6 @@
 # Captação de clientes: configuração e operação
 
-O botão **Solicitar orçamento** (e os botões "Fale conosco") leva ao questionário no final do site. Cada envio é salvo e chega completo no seu e-mail, para você chamar o cliente por telefone ou WhatsApp.
+O botão **Solicitar orçamento** (no topo da página, no menu e no cabeçalho) abre o questionário numa janela (modal) por cima do site; ele não fica exposto no meio ou no fim da página. Cada envio é salvo e chega completo no seu e-mail, para você chamar o cliente por telefone ou WhatsApp.
 
 ## Como o aviso chega até você
 
@@ -25,7 +25,7 @@ O plano gratuito do Netlify inclui 100 envios de formulário por mês.
 
 | Peça | Tecnologia | Onde fica |
 |---|---|---|
-| Questionário (front-end) | HTML/CSS/JS puro, mesmo design do site | `index.html` (seção `#formulario`) |
+| Questionário (front-end) | HTML/CSS/JS puro, mesmo design do site, em `<dialog>` | `index.html` (`<dialog id="formulario">`) |
 | Declaração do formulário ao Netlify | `<form name="orcamento" data-netlify>` oculto | `index.html` |
 | Receber e validar o envio | Netlify Function `POST /api/lead` | `netlify/functions/lead.mjs` |
 | Anti-spam (token) | Netlify Function `GET /api/form-token` | `netlify/functions/form-token.mjs` |
@@ -35,7 +35,7 @@ O plano gratuito do Netlify inclui 100 envios de formulário por mês.
 | Reenvio, prazo de guarda e limpeza | Função agendada (15 min) | `netlify/functions/notify-retry.mjs` |
 | Aviso de privacidade | Página estática | `privacidade.html` |
 
-O formulário só aparece no site quando a página recebe "ok" de `/api/form-token`, o que acontece quando há um jeito de você receber os contatos (Netlify Forms, que é o padrão, ou `ADMIN_PASSWORD`).
+Os botões só abrem o questionário quando a página recebe "ok" de `/api/form-token`; caso contrário eles levam à seção de contato (WhatsApp e Instagram), o que acontece quando há um jeito de você receber os contatos (Netlify Forms, que é o padrão, ou `ADMIN_PASSWORD`).
 
 ## O questionário
 
