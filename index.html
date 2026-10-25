@@ -383,6 +383,145 @@
   .js .rv{ opacity:0; transform:translateY(18px); transition:opacity .8s ease, transform .8s cubic-bezier(.2,.7,.2,1); transition-delay:var(--d,0s); }
   .js .rv.in, html.is-ready .hero .rv{ opacity:1; transform:none; }
 
+  /* ---------- movimento por scroll (ativado só com gsap-on) ---------- */
+  html.lenis, html.lenis body{ height:auto; }
+  .lenis.lenis-smooth{ scroll-behavior:auto !important; }
+  .lenis.lenis-stopped{ overflow:hidden; }
+  html.gsap-on .rv{ opacity:1; transform:none; transition:none; }
+  html.gsap-on body{ overflow-x:clip; }
+  .w{ display:inline-block; overflow:hidden; vertical-align:bottom; padding-bottom:.14em; margin-bottom:-.14em; }
+  .wi{ display:inline-block; will-change:transform; }
+
+  .site-header .progress{
+    position:absolute; left:0; bottom:-1px; height:2px; width:100%; pointer-events:none;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2)); transform:scaleX(0); transform-origin:left;
+  }
+
+  /* hero: camadas em profundidade */
+  .hero-layers{ position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+  .hero-grid{ z-index:1; }
+  .orb{ position:absolute; border-radius:50%; filter:blur(60px); opacity:.6; will-change:transform; }
+  .orb-a{ width:clamp(260px,34vw,520px); aspect-ratio:1; right:4%; top:6%; background:radial-gradient(circle,rgba(43,212,192,.34),transparent 68%); }
+  .orb-b{ width:clamp(200px,26vw,400px); aspect-ratio:1; left:-5%; bottom:2%; background:radial-gradient(circle,rgba(70,120,210,.28),transparent 68%); }
+  .glyph{ position:absolute; font:700 clamp(26px,3.4vw,52px)/1 'Manrope',sans-serif; color:rgba(43,212,192,.13); user-select:none; will-change:transform; }
+  .g-a{ left:47%; top:15%; } .g-b{ left:4%; top:60%; } .g-c{ right:3%; bottom:13%; } .g-d{ left:58%; bottom:8%; }
+  .scroll-hint{
+    position:absolute; left:50%; bottom:22px; transform:translateX(-50%); z-index:1; display:none; align-items:center; gap:8px;
+    font:500 12px/1 'Inter',sans-serif; letter-spacing:.14em; text-transform:uppercase; color:var(--muted);
+  }
+  .scroll-hint .arr{ display:inline-block; animation:hint 1.6s ease-in-out infinite; }
+  @keyframes hint{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(5px); } }
+
+  /* antes e depois */
+  .scene{ position:relative; overflow:hidden; padding-block:clamp(72px,9vw,120px); background:var(--bg); }
+  .scene-grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:clamp(32px,6vw,88px); align-items:center; }
+  .scene h2{ font-size:clamp(28px,3.8vw,48px); font-weight:700; line-height:1.1; letter-spacing:-.025em; margin:14px 0 16px; }
+  .scene .lead{ color:var(--muted); font-size:17px; line-height:1.65; max-width:470px; }
+  .pile{ position:relative; height:clamp(250px,30vw,320px); margin-top:30px; }
+  .chaos{
+    position:absolute; max-width:64%; padding:9px 13px; border-radius:10px; border:1px solid var(--line-strong); background:var(--surface);
+    color:var(--muted); font:500 12.5px/1.35 'Inter',sans-serif; box-shadow:0 14px 34px -16px rgba(0,0,0,.85);
+  }
+  .chaos:nth-child(1){ left:2%; top:4%; transform:rotate(-5deg); }
+  .chaos:nth-child(2){ left:46%; top:0; transform:rotate(3deg); }
+  .chaos:nth-child(3){ left:8%; top:36%; transform:rotate(2deg); }
+  .chaos:nth-child(4){ left:50%; top:40%; transform:rotate(-3deg); }
+  .chaos:nth-child(5){ left:0; top:70%; transform:rotate(-2deg); }
+  .chaos:nth-child(6){ left:44%; top:76%; transform:rotate(5deg); }
+  .board{
+    border:1px solid var(--line-strong); border-radius:22px; padding:clamp(18px,3vw,30px);
+    background:linear-gradient(160deg,#101A27,#0A1018); box-shadow:0 40px 90px -46px rgba(0,0,0,.9);
+  }
+  .board ul{ margin:0; padding:0; list-style:none; }
+  .board-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+  .board-head strong{ font:700 16px/1 'Manrope',sans-serif; }
+  .board-head span{ font:600 12px/1 'Inter',sans-serif; padding:6px 11px; border-radius:999px; background:var(--accent-soft); color:var(--accent); }
+  .board-row{ display:flex; align-items:center; gap:14px; padding:14px; margin-top:12px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.025); }
+  .board-row .icon-box{ width:42px; height:42px; margin:0; flex-shrink:0; }
+  .board-row b{ display:block; font:600 15px/1.3 'Inter',sans-serif; }
+  .board-row small{ display:block; color:var(--muted); font-size:13px; line-height:1.4; margin-top:2px; }
+  .board-row .ok{ margin-left:auto; color:var(--accent); width:20px; height:20px; stroke-width:2.4; }
+  @media (max-width:860px){ .scene-grid{ grid-template-columns:1fr; } }
+
+  /* soluções: trilho horizontal preso à tela (desktop) */
+  .rail-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:24px; }
+  .rail-progress{ display:none; }
+  .rail-viewport{ width:min(100% - 2*var(--gutter), var(--container)); margin-inline:auto; }
+  .rail-card{ position:relative; overflow:hidden; }
+  .rail-card::after{
+    content:attr(data-n); position:absolute; right:16px; top:4px; font:800 clamp(64px,8vw,104px)/1 'Manrope',sans-serif;
+    color:rgba(255,255,255,.035); pointer-events:none;
+  }
+  @media (min-width:861px){
+    html.gsap-on .rail-sec{ min-height:100svh; display:flex; flex-direction:column; justify-content:center; padding-block:84px 0; overflow:hidden; }
+    html.gsap-on .rail-sec .sec-head{ margin-bottom:34px; }
+    html.gsap-on .rail-progress{ display:block; width:170px; height:3px; border-radius:3px; background:var(--line-strong); overflow:hidden; flex-shrink:0; margin-bottom:46px; }
+    html.gsap-on .rail-progress span{ display:block; height:100%; background:var(--accent); transform:scaleX(0); transform-origin:left; }
+    html.gsap-on .rail-viewport{ width:auto; margin:0; }
+    html.gsap-on .rail-track{
+      display:flex; width:max-content; gap:22px; will-change:transform;
+      padding-left:max(var(--gutter), calc((100vw - var(--container)) / 2)); padding-right:12vw;
+    }
+    html.gsap-on .rail-track .card{ flex:0 0 min(25rem,36vw); min-height:290px; }
+  }
+
+  /* processo: a linha se preenche conforme o scroll */
+  .step-head{ --p:1; }
+  .step-head .num{ z-index:2; transition:background .3s, color .3s, border-color .3s; }
+  .step:not(:last-child) .step-head::before{
+    content:''; position:absolute; left:52px; right:-24px; top:50%; height:2px; margin-top:-1px; z-index:1;
+    background:var(--accent); transform-origin:left; transform:scaleX(var(--p));
+  }
+  .step.on .num{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+  @media (max-width:980px){
+    .step:not(:last-child) .step-head::before{ left:21px; right:auto; top:50px; bottom:-30px; width:2px; height:auto; margin:0; transform-origin:top; transform:scaleY(var(--p)); }
+  }
+
+  /* sobre: o retrato atravessa a tela com efeito digital */
+  .portrait{ grid-row:1 / span 2; align-self:center; }
+  .copy-a{ grid-column:2; grid-row:1; align-self:end; }
+  .copy-b{ grid-column:2; grid-row:2; align-self:start; margin-top:16px; }
+  .copy-b p{ color:var(--muted); font-size:16.5px; line-height:1.75; max-width:560px; }
+  .portrait-img{ position:relative; overflow:hidden; background:#0A0F16; }
+  .portrait-img img{ width:100%; height:auto; aspect-ratio:4/5; object-fit:cover; object-position:center 25%; display:block; }
+  .portrait .px{ position:absolute; inset:0; width:100%; height:100%; opacity:0; image-rendering:pixelated; pointer-events:none; }
+  .portrait .ghost{
+    position:absolute; inset:0; background:url(portrait.jpg) center 25% / cover; mix-blend-mode:screen; pointer-events:none;
+    opacity:var(--ghost,0); will-change:transform;
+  }
+  .portrait .g1{ filter:sepia(1) hue-rotate(125deg) saturate(5) brightness(.85); transform:translateX(calc(var(--split,0px) * -1)); }
+  .portrait .g2{ filter:sepia(1) hue-rotate(-35deg) saturate(5) brightness(.7); transform:translateX(var(--split,0px)); }
+  .portrait .scan{
+    position:absolute; left:0; right:0; top:0; height:2px; opacity:0; pointer-events:none;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent); box-shadow:0 0 18px 4px rgba(43,212,192,.65);
+  }
+  @media (max-width:860px){
+    .portrait{ grid-row:auto; }
+    .copy-a, .copy-b{ grid-column:1; grid-row:auto; }
+  }
+  @media (min-width:861px){
+    html.gsap-on .about-scene{ min-height:100svh; display:flex; align-items:center; padding-block:0; overflow:hidden; }
+    html.gsap-on .about{ display:block; position:relative; height:min(78svh,640px); width:min(100% - 2*var(--gutter), var(--container)); }
+    html.gsap-on .portrait, html.gsap-on .copy-a, html.gsap-on .copy-b{ position:absolute; top:0; bottom:0; margin-block:auto; height:fit-content; }
+    html.gsap-on .portrait{ left:0; width:min(380px,36vw); }
+    html.gsap-on .copy-a, html.gsap-on .copy-b{ width:calc(100% - min(380px,36vw) - clamp(40px,6vw,88px)); margin-top:auto; }
+    html.gsap-on .copy-a{ right:0; }
+    html.gsap-on .copy-b{ left:0; }
+  }
+
+  /* contato: a rota se desenha até o destino */
+  #contato{ position:relative; padding-top:clamp(120px,14vw,190px); }
+  .route{ position:absolute; top:0; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; pointer-events:none; }
+  .route [data-route]{ display:block; width:2px; height:clamp(70px,10vw,120px); background:repeating-linear-gradient(to bottom,var(--accent) 0 12px,transparent 12px 22px); }
+  .route [data-pin]{ display:block; width:14px; height:14px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 6px rgba(43,212,192,.15), 0 0 34px var(--accent); }
+
+  @media (min-width:861px){
+    html.gsap-on .hero{ min-height:100svh; }
+    html.gsap-on .scroll-hint{ display:flex; }
+    html.gsap-on .scene{ min-height:100svh; display:flex; align-items:center; padding-block:0; }
+    html.gsap-on .scene-grid{ width:min(100% - 2*var(--gutter), var(--container)); }
+  }
+
   /* ---------- intro ---------- */
   #intro{
     position:fixed; inset:0; z-index:1000; background:#05070A; overflow:hidden; display:none;
@@ -474,9 +613,10 @@
       </button>
     </div>
   </div>
+  <span class="progress" data-progress aria-hidden="true"></span>
 </header>
 
-<div class="mobile-menu" id="mobile-menu" aria-label="Menu">
+<div class="mobile-menu" id="mobile-menu" aria-label="Menu" data-lenis-prevent>
   <div class="mobile-menu-top">
     <span class="brand-name">Araujo<span>.IA</span></span>
     <button class="menu-btn" id="menu-close" type="button" aria-label="Fechar menu" style="display:inline-flex;">
@@ -495,22 +635,30 @@
 
   <!-- ============ HERO ============ -->
   <section class="hero" id="top">
+    <div class="hero-layers" aria-hidden="true">
+      <span class="orb orb-a" data-layer data-depth="0.45"></span>
+      <span class="orb orb-b" data-layer data-depth="0.85"></span>
+      <span class="glyph g-a" data-layer data-depth="0.6">&lt;/&gt;</span>
+      <span class="glyph g-b" data-layer data-depth="1">{ }</span>
+      <span class="glyph g-c" data-layer data-depth="0.75">01</span>
+      <span class="glyph g-d" data-layer data-depth="0.5">AI</span>
+    </div>
     <div class="container hero-grid">
-      <div>
-        <p class="eyebrow rv">Tecnologia para empresas</p>
-        <h1 class="rv" style="--d:.08s">Soluções digitais <em>sob medida</em> para o seu negócio</h1>
-        <p class="hero-sub rv" style="--d:.16s">Desenvolvemos sites, sistemas web, automações e soluções com inteligência artificial. Trabalhamos de perto com cada empresa, do planejamento ao lançamento.</p>
-        <div class="hero-cta rv" style="--d:.24s">
+      <div data-hero-copy>
+        <p class="eyebrow rv" data-hero-fade data-hero-eyebrow>Tecnologia para empresas</p>
+        <h1 class="rv" data-split style="--d:.08s">Soluções digitais <em>sob medida</em> para o seu negócio</h1>
+        <p class="hero-sub rv" data-hero-fade style="--d:.16s">Desenvolvemos sites, sistemas web, automações e soluções com inteligência artificial. Trabalhamos de perto com cada empresa, do planejamento ao lançamento.</p>
+        <div class="hero-cta rv" data-hero-fade style="--d:.24s">
           <a href="#contato" class="btn btn-primary" data-lead-cta>Solicitar orçamento <svg class="ic"><use href="#i-arrow"/></svg></a>
           <a href="#projetos" class="btn btn-ghost">Ver projetos</a>
         </div>
-        <ul class="checks rv" style="--d:.32s">
+        <ul class="checks rv" data-hero-fade style="--d:.32s">
           <li><svg class="ic"><use href="#i-check"/></svg>Projetos sob medida</li>
           <li><svg class="ic"><use href="#i-check"/></svg>Atendimento próximo</li>
           <li><svg class="ic"><use href="#i-check"/></svg>Tecnologia e IA aplicada</li>
         </ul>
       </div>
-      <div class="tilt rv" style="--d:.2s" aria-hidden="true">
+      <div class="tilt rv" data-hero-visual style="--d:.2s" aria-hidden="true">
         <div class="tilt-rot" id="tilt-rot">
           <div class="tilt-card"><img src="logo.png" width="428" height="347" alt=""></div>
           <span class="chip chip-a"><svg class="ic"><use href="#i-globe"/></svg>Sites</span>
@@ -519,46 +667,94 @@
         </div>
       </div>
     </div>
+    <div class="scroll-hint" data-scroll-hint aria-hidden="true">Role para explorar <span class="arr">↓</span></div>
+  </section>
+
+  <!-- ============ ANTES E DEPOIS ============ -->
+  <section class="scene" id="transformacao" aria-labelledby="scene-title">
+    <div class="container scene-grid">
+      <div class="scene-copy">
+        <p class="eyebrow">Antes e depois</p>
+        <h2 id="scene-title" data-split>Do improviso ao sistema que trabalha por você.</h2>
+        <p class="lead">Pedidos no WhatsApp, planilhas soltas e tarefas repetidas viram um fluxo organizado, com tecnologia feita sob medida para a sua operação.</p>
+        <div class="pile" data-pile>
+          <span class="chaos" data-chaos>Planilha_pedidos_FINAL_v3.xlsx</span>
+          <span class="chaos" data-chaos>Pedido pelo WhatsApp às 23h47</span>
+          <span class="chaos" data-chaos>“Qual era o valor combinado?”</span>
+          <span class="chaos" data-chaos>Cliente sem retorno há dias</span>
+          <span class="chaos" data-chaos>Relatório feito à mão toda sexta</span>
+          <span class="chaos" data-chaos>Estoque anotado no caderno</span>
+        </div>
+      </div>
+      <div class="board" data-card>
+        <div class="board-head"><strong>Operação organizada</strong><span>Sob medida</span></div>
+        <ul>
+          <li class="board-row" data-row>
+            <span class="icon-box"><svg class="ic"><use href="#i-layout"/></svg></span>
+            <span><b>Pedidos centralizados</b><small>Tudo em um só lugar, sem planilha solta</small></span>
+            <svg class="ic ok" aria-hidden="true"><use href="#i-check"/></svg>
+          </li>
+          <li class="board-row" data-row>
+            <span class="icon-box"><svg class="ic"><use href="#i-workflow"/></svg></span>
+            <span><b>Tarefas automatizadas</b><small>Sem digitar a mesma informação duas vezes</small></span>
+            <svg class="ic ok" aria-hidden="true"><use href="#i-check"/></svg>
+          </li>
+          <li class="board-row" data-row>
+            <span class="icon-box"><svg class="ic"><use href="#i-cpu"/></svg></span>
+            <span><b>Inteligência aplicada</b><small>Respostas e análises mais rápidas no dia a dia</small></span>
+            <svg class="ic ok" aria-hidden="true"><use href="#i-check"/></svg>
+          </li>
+          <li class="board-row" data-row>
+            <span class="icon-box"><svg class="ic"><use href="#i-target"/></svg></span>
+            <span><b>Clientes acompanhados</b><small>Cada contato no seu fluxo, sem se perder</small></span>
+            <svg class="ic ok" aria-hidden="true"><use href="#i-check"/></svg>
+          </li>
+        </ul>
+      </div>
+    </div>
   </section>
 
   <!-- ============ SOLUÇÕES ============ -->
-  <section class="alt" id="solucoes">
-    <div class="container">
-      <div class="sec-head rv">
+  <section class="alt rail-sec" id="solucoes">
+    <div class="container rail-head">
+      <div class="sec-head">
         <p class="eyebrow">Soluções</p>
-        <h2>O que a Araujo.IA desenvolve</h2>
+        <h2 data-split>O que a Araujo.IA desenvolve</h2>
         <p>Tecnologia sob medida, do site institucional ao sistema que organiza a operação da empresa.</p>
       </div>
-      <div class="grid-3">
-        <article class="card rv">
-          <div class="icon-box"><svg class="ic"><use href="#i-globe"/></svg></div>
-          <h3>Sites</h3>
-          <p>Sites institucionais e páginas de conversão, rápidos e pensados para transformar visitantes em clientes.</p>
+      <div class="rail-progress" aria-hidden="true"><span data-rail-progress></span></div>
+    </div>
+    <div class="rail-viewport">
+      <div class="grid-3 rail-track" data-track>
+        <article class="card rail-card" data-panel data-n="01">
+          <div class="icon-box" data-panel-item><svg class="ic"><use href="#i-globe"/></svg></div>
+          <h3 data-panel-item>Sites</h3>
+          <p data-panel-item>Sites institucionais e páginas de conversão, rápidos e pensados para transformar visitantes em clientes.</p>
         </article>
-        <article class="card rv" style="--d:.07s">
-          <div class="icon-box"><svg class="ic"><use href="#i-layout"/></svg></div>
-          <h3>Sistemas web</h3>
-          <p>Sistemas personalizados para organizar processos e aumentar a eficiência da operação.</p>
+        <article class="card rail-card" data-panel data-n="02">
+          <div class="icon-box" data-panel-item><svg class="ic"><use href="#i-layout"/></svg></div>
+          <h3 data-panel-item>Sistemas web</h3>
+          <p data-panel-item>Sistemas personalizados para organizar processos e aumentar a eficiência da operação.</p>
         </article>
-        <article class="card rv" style="--d:.14s">
-          <div class="icon-box"><svg class="ic"><use href="#i-workflow"/></svg></div>
-          <h3>Automações</h3>
-          <p>Automação de tarefas repetitivas para economizar tempo e reduzir erros.</p>
+        <article class="card rail-card" data-panel data-n="03">
+          <div class="icon-box" data-panel-item><svg class="ic"><use href="#i-workflow"/></svg></div>
+          <h3 data-panel-item>Automações</h3>
+          <p data-panel-item>Automação de tarefas repetitivas para economizar tempo e reduzir erros.</p>
         </article>
-        <article class="card rv">
-          <div class="icon-box"><svg class="ic"><use href="#i-cpu"/></svg></div>
-          <h3>Inteligência artificial</h3>
-          <p>Integração de IA em processos e produtos para criar soluções mais inteligentes e eficientes.</p>
+        <article class="card rail-card" data-panel data-n="04">
+          <div class="icon-box" data-panel-item><svg class="ic"><use href="#i-cpu"/></svg></div>
+          <h3 data-panel-item>Inteligência artificial</h3>
+          <p data-panel-item>Integração de IA em processos e produtos para criar soluções mais inteligentes e eficientes.</p>
         </article>
-        <article class="card rv" style="--d:.07s">
-          <div class="icon-box"><svg class="ic"><use href="#i-cloud"/></svg></div>
-          <h3>SaaS</h3>
-          <p>Desenvolvimento de produtos digitais e sistemas por assinatura.</p>
+        <article class="card rail-card" data-panel data-n="05">
+          <div class="icon-box" data-panel-item><svg class="ic"><use href="#i-cloud"/></svg></div>
+          <h3 data-panel-item>SaaS</h3>
+          <p data-panel-item>Desenvolvimento de produtos digitais e sistemas por assinatura.</p>
         </article>
-        <article class="card rv" style="--d:.14s">
-          <div class="icon-box"><svg class="ic"><use href="#i-layers"/></svg></div>
-          <h3>Soluções digitais</h3>
-          <p>Tecnologia personalizada para necessidades específicas de cada empresa.</p>
+        <article class="card rail-card" data-panel data-n="06">
+          <div class="icon-box" data-panel-item><svg class="ic"><use href="#i-layers"/></svg></div>
+          <h3 data-panel-item>Soluções digitais</h3>
+          <p data-panel-item>Tecnologia personalizada para necessidades específicas de cada empresa.</p>
         </article>
       </div>
     </div>
@@ -569,7 +765,7 @@
     <div class="container">
       <div class="sec-head rv">
         <p class="eyebrow">Projetos</p>
-        <h2>Projetos desenvolvidos</h2>
+        <h2 data-split>Projetos desenvolvidos</h2>
         <p>Alguns dos trabalhos criados pela Araujo.IA para diferentes tipos de negócio.</p>
       </div>
       <div class="grid-3">
@@ -648,7 +844,7 @@
     <div class="container">
       <div class="sec-head rv">
         <p class="eyebrow">Como trabalhamos</p>
-        <h2>Do primeiro contato ao lançamento</h2>
+        <h2 data-split>Do primeiro contato ao lançamento</h2>
         <p>Um processo simples, com acompanhamento em cada etapa.</p>
       </div>
       <div class="steps">
@@ -677,16 +873,24 @@
   </section>
 
   <!-- ============ SOBRE ============ -->
-  <section id="sobre">
-    <div class="container about">
-      <figure class="portrait rv" style="margin:0;">
-        <img src="portrait.jpg" width="800" height="1000" loading="lazy" decoding="async" alt="Retrato do fundador da Araujo.IA">
+  <section id="sobre" class="about-scene" aria-labelledby="about-title">
+    <div class="container about" data-about>
+      <figure class="portrait" data-portrait style="margin:0;">
+        <div class="portrait-img">
+          <img src="portrait.jpg" width="800" height="1000" loading="lazy" decoding="async" alt="Retrato do fundador da Araujo.IA">
+          <canvas class="px" data-pixel aria-hidden="true"></canvas>
+          <span class="ghost g1" aria-hidden="true"></span>
+          <span class="ghost g2" aria-hidden="true"></span>
+          <span class="scan" data-scan aria-hidden="true"></span>
+        </div>
         <figcaption><strong>Fundador</strong>Araujo.IA</figcaption>
       </figure>
-      <div class="rv" style="--d:.1s">
+      <div class="copy-a" data-copy-a>
         <p class="eyebrow">Sobre</p>
-        <h2>Tecnologia, design e inteligência artificial a serviço do seu negócio</h2>
+        <h2 id="about-title" data-split>Tecnologia, design e inteligência artificial a serviço do seu negócio</h2>
         <p>A Araujo.IA nasceu para criar soluções digitais que unem tecnologia, design e inteligência artificial. Trabalhamos de perto com cada negócio para entender o problema real antes de escrever a primeira linha de código.</p>
+      </div>
+      <div class="copy-b" data-copy-b>
         <p>Construímos sites profissionais, sistemas web, produtos SaaS, automações e soluções com IA, sempre sob medida para o negócio que estamos atendendo, nunca a partir de um modelo pronto.</p>
         <ul class="pills">
           <li>Sites</li>
@@ -704,7 +908,7 @@
     <div class="container">
       <div class="sec-head rv">
         <p class="eyebrow">Diferenciais</p>
-        <h2>Por que escolher a Araujo.IA</h2>
+        <h2 data-split>Por que escolher a Araujo.IA</h2>
       </div>
       <div class="diffs">
         <div class="card diff rv">
@@ -738,10 +942,11 @@
 
   <!-- ============ CONTATO ============ -->
   <section id="contato">
+    <div class="route" aria-hidden="true"><span data-route></span><i data-pin></i></div>
     <div class="container">
       <div class="cta-box rv">
         <div>
-          <h2>Vamos conversar sobre o seu projeto?</h2>
+          <h2 data-split>Vamos conversar sobre o seu projeto?</h2>
           <p>Conte o que você precisa e receba uma proposta sob medida para o seu negócio.</p>
         </div>
         <div class="cta-actions">
@@ -796,7 +1001,7 @@
 </footer>
 
 <!-- ============ QUESTIONÁRIO DE ORÇAMENTO (abre ao clicar em "Solicitar orçamento") ============ -->
-<dialog id="formulario" class="lead-dialog" aria-labelledby="lead-title">
+<dialog id="formulario" class="lead-dialog" aria-labelledby="lead-title" data-lenis-prevent>
   <div class="dlg-body">
     <button type="button" class="dlg-close" id="lead-close" aria-label="Fechar"><svg class="ic"><use href="#i-x"/></svg></button>
     <header class="dlg-head">
@@ -992,6 +1197,7 @@
     toTop();
     root.classList.remove('intro-lock');
     root.classList.add('is-ready');
+    window.dispatchEvent(new Event('aia:ready'));
     if (intro) {
       intro.classList.add('hide');
       setTimeout(function(){
@@ -1243,6 +1449,11 @@
   document.getElementById('lead-again').addEventListener('click', closeDialog);
 })();
 </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.4/dist/lenis.min.js" defer></script>
+<script src="motion.js" defer></script>
 
 </body>
 </html>
