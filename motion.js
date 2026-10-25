@@ -119,28 +119,27 @@
     });
   }
 
-  // Mosaico de pixels do retrato (efeito de "dissolver em pixels" controlado pelo scroll).
-  function makePixelator(img, canvas) {
+  // Camada de pixels do retrato: desenhada UMA vez, com pixels finos e nítidos (sem borrar).
+  // O scroll só controla quanto dela aparece (clip-path), junto com a linha do scanner.
+  function makePixelLayer(img, canvas) {
     var ctx = canvas.getContext('2d');
     var small = document.createElement('canvas');
     var sctx = small.getContext('2d');
-    function fit() {
+    function draw() {
+      if (!img.naturalWidth) return;
       var r = canvas.getBoundingClientRect();
-      var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      var w = Math.max(2, Math.round(r.width * dpr)), h = Math.max(2, Math.round(r.height * dpr));
-      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
-    }
-    function draw(block) {
-      if (block <= 1.05 || !img.naturalWidth) { canvas.style.opacity = '0'; return; }
-      fit();
-      var sw = Math.max(2, Math.round(canvas.width / block));
-      var sh = Math.max(2, Math.round(canvas.height / block));
-      small.width = sw; small.height = sh;
-      sctx.drawImage(img, 0, 0, sw, sh);
+      if (!r.width) return;
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(r.width * dpr);
+      canvas.height = Math.round(r.height * dpr);
+      var cells = 52; // ~52 pixels de largura: o rosto continua reconhecível
+      small.width = cells;
+      small.height = Math.max(2, Math.round(cells * canvas.height / canvas.width));
+      sctx.imageSmoothingEnabled = true;
+      sctx.drawImage(img, 0, 0, small.width, small.height);
       ctx.imageSmoothingEnabled = false;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(small, 0, 0, sw, sh, 0, 0, canvas.width, canvas.height);
-      canvas.style.opacity = '1';
+      ctx.drawImage(small, 0, 0, small.width, small.height, 0, 0, canvas.width, canvas.height);
     }
     return { draw: draw };
   }
@@ -284,30 +283,36 @@
       revealOnScroll(steps.map(function (s) { return $('h3', s).parentNode; }), $('.steps', sec), { stagger: 0.12 });
     });
 
-    /* SOBRE: o retrato atravessa a tela, vira pixels, é varrido por um scanner e se recompõe */
+    /* SOBRE: o retrato é "digitalizado" por um scanner, atravessa a tela em pixels finos e é recomposto nítido */
     scene('sobre', function () {
       var sec = $('#sobre'); if (!sec) return;
       var q = gsap.utils.selector(sec);
       var portrait = q('[data-portrait]')[0], img = $('img', portrait), canvas = q('[data-pixel]')[0], scan = q('[data-scan]')[0];
       var A = q('[data-copy-a]')[0], B = q('[data-copy-b]')[0], stage = q('[data-about]')[0];
+      var box = $('.portrait-img', portrait);
       img.loading = 'eager';
-      var px = makePixelator(img, canvas);
-      var fx = { block: 1 };
-      var render = function () {
-        var b = fx.block;
-        px.draw(b);
-        portrait.style.setProperty('--split', Math.min(12, (b - 1) * 0.28) + 'px');
-        portrait.style.setProperty('--ghost', Math.min(0.55, (b - 1) / 10));
+
+      var layer = makePixelLayer(img, canvas);
+      // cut.s = % da altura já "digitalizada" (0 = foto nítida, 100 = toda em pixels).
+      var cut = { s: 0 };
+      var applyCut = function () {
+        var s = Math.max(0, Math.min(100, cut.s));
+        canvas.style.clipPath = 'inset(0 0 ' + (100 - s) + '% 0)';
+        scan.style.transform = 'translateY(' + (s / 100 * box.offsetHeight) + 'px)';
+        scan.style.opacity = (s > 0.4 && s < 99.6) ? '1' : '0';
       };
-      var onImage = function () { render(); ScrollTrigger.refresh(); };
-      if (img.complete && img.naturalWidth) onImage(); else img.addEventListener('load', onImage, { once: true });
+      var redraw = function () { layer.draw(); applyCut(); };
+      if (img.complete && img.naturalWidth) redraw(); else img.addEventListener('load', redraw, { once: true });
+      if (window.__aiaPortraitResize) window.removeEventListener('resize', window.__aiaPortraitResize);
+      var t; window.__aiaPortraitResize = function () { clearTimeout(t); t = setTimeout(redraw, 200); };
+      window.addEventListener('resize', window.__aiaPortraitResize);
 
       revealWords($$('h2 .wi', A), { scrollTrigger: { trigger: sec, start: 'top 70%', toggleActions: 'play none none reverse' } });
 
       if (!desktop) {
-        // Celular: sem tela fixa; o rosto se recompõe de pixels enquanto entra na tela.
-        fx.block = 34; render();
-        gsap.to(fx, { block: 1, ease: 'power2.out', onUpdate: render, scrollTrigger: { trigger: portrait, start: 'top 88%', end: 'top 38%', scrub: 0.5 } });
+        // Celular: sem tela fixa; a foto é recomposta pelo scanner (de baixo para cima) ao entrar na tela.
+        cut.s = 100; applyCut();
+        gsap.to(cut, { s: 0, ease: 'none', onUpdate: applyCut, scrollTrigger: { trigger: portrait, start: 'top 88%', end: 'top 38%', scrub: 0.5 } });
         revealOnScroll([A, B], A);
         return;
       }
@@ -316,18 +321,18 @@
       gsap.set(B, { opacity: 0 });
       var tl = gsap.timeline({
         defaults: { ease: 'none' },
-        scrollTrigger: { trigger: sec, start: 'top top', end: '+=170%', scrub: 0.7, pin: true, invalidateOnRefresh: true }
+        scrollTrigger: { trigger: sec, start: 'top top', end: '+=170%', scrub: 0.5, pin: true, invalidateOnRefresh: true }
       });
-      tl.to(A, { opacity: 0, x: 70, duration: 0.55, ease: 'power2.in' }, 0)
-        .to(scan, { opacity: 1, duration: 0.15 }, 0.1)
-        .to(scan, { y: function () { return portrait.offsetHeight; }, duration: 0.9 }, 0.15)
-        .to(scan, { opacity: 0, duration: 0.15 }, 1.0)
-        .to(fx, { block: 46, duration: 0.75, ease: 'power2.in', onUpdate: render }, 0.1)
-        .to(portrait, { x: function () { return dx(); }, duration: 1.5, ease: 'power2.inOut' }, 0.4)
-        .to(portrait, { rotateY: -16, transformPerspective: 1100, duration: 0.75, ease: 'power1.out' }, 0.4)
-        .to(portrait, { rotateY: 0, duration: 0.75, ease: 'power1.in' }, 1.15)
-        .to(fx, { block: 1, duration: 0.85, ease: 'power2.out', onUpdate: render }, 1.2)
-        .fromTo(B, { opacity: 0, x: -70 }, { opacity: 1, x: 0, duration: 0.6, ease: 'power2.out' }, 1.55)
+      tl.to(A, { opacity: 0, x: 70, duration: 0.5, ease: 'power2.in' }, 0)
+        // 1) o scanner desce e transforma a foto em pixels finos
+        .to(cut, { s: 100, duration: 0.7, ease: 'power1.inOut', onUpdate: applyCut }, 0.1)
+        // 2) a versão em pixels atravessa a tela, com inclinação leve
+        .to(portrait, { x: function () { return dx(); }, duration: 1.3, ease: 'power2.inOut' }, 0.8)
+        .to(portrait, { rotateY: -7, transformPerspective: 1400, duration: 0.65, ease: 'sine.out' }, 0.8)
+        .to(portrait, { rotateY: 0, duration: 0.65, ease: 'sine.in' }, 1.45)
+        // 3) no destino o scanner sobe e recompõe a foto nítida
+        .to(cut, { s: 0, duration: 0.7, ease: 'power1.inOut', onUpdate: applyCut }, 1.75)
+        .fromTo(B, { opacity: 0, x: -70 }, { opacity: 1, x: 0, duration: 0.6, ease: 'power2.out' }, 2.05)
         .to({}, { duration: 0.5 });
     });
 

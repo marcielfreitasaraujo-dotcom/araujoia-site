@@ -11,7 +11,7 @@ Toda a coreografia fica em `motion.js`, com as bibliotecas **GSAP + ScrollTrigge
 | Soluções | Tela fixa com trilho horizontal: o scroll vertical desliza os cartões para o lado, com barra de progresso | Cartões empilhados com entrada suave |
 | Projetos | Cartões entram em perspectiva e a ilustração desliza dentro da moldura | Entrada suave |
 | Processo | A linha se preenche e cada etapa acende quando a linha chega nela | Idem, na vertical |
-| Sobre | Tela fixa: o retrato atravessa a tela, vira mosaico de pixels com separação de cores RGB e uma varredura de scanner, e se recompõe do outro lado enquanto o texto troca de lado | O rosto se recompõe de pixels ao entrar na tela |
+| Sobre | Tela fixa: uma linha de scanner desce e transforma o retrato em pixels finos e nítidos; ele atravessa a tela, o scanner sobe no destino devolvendo a foto original e o texto troca de lado | O scanner sobe recompondo a foto ao entrar na tela |
 | Diferenciais | Cartões e ícones entram em sequência | Idem |
 | Contato | Uma rota tracejada se desenha até um ponto brilhante e o convite aparece | Idem |
 | Cabeçalho | Barra de progresso de leitura | Idem |
@@ -28,5 +28,5 @@ Os rótulos pequenos das seções (ex.: "SOBRE") "decodificam" ao entrar na tela
 
 - **Duração de uma cena fixa:** valor `end` do `scrollTrigger` (ex.: `'+=170%'` no retrato = 1,7 telas de rolagem).
 - **Suavidade da rolagem:** `lerp` do Lenis no início de `motion.js` (0,1 padrão; menor = mais "macio").
-- **Intensidade do efeito de pixels do retrato:** `block: 46` na cena `sobre`.
+- **Tamanho dos pixels do retrato:** `cells = 52` em `makePixelLayer` (menos células = pixels maiores).
 - **Depuração:** abra o site com `?debug-motion` na URL para expor `window.__lenis` no console (útil para testar posições de scroll).
