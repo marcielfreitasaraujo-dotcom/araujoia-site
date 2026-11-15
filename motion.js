@@ -258,7 +258,7 @@
           y: 70, rotateX: desktop ? 10 : 0, opacity: 0, transformPerspective: 1000, duration: 0.9, ease: 'power3.out',
           clearProps: 'transform,opacity', scrollTrigger: { trigger: card, start: 'top 88%', toggleActions: 'play none none none' }
         });
-        var svg = $('.frame svg', card);
+        var svg = $('.frame svg, .frame img', card);
         if (svg) gsap.fromTo(svg, { yPercent: -6, scale: 1.1 }, { yPercent: 6, ease: 'none', scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true } });
       });
     });

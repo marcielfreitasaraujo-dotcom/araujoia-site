@@ -149,13 +149,21 @@
       radial-gradient(45% 45% at 8% 92%, rgba(60,110,190,.12), transparent 70%);
   }
   .hero-grid{ position:relative; display:grid; grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr); gap:clamp(32px,5vw,72px); align-items:center; }
-  .hero h1{ font-size:clamp(34px,5vw,60px); font-weight:800; line-height:1.07; letter-spacing:-.028em; margin:18px 0 22px; }
+  .hero h1{ font-size:clamp(34px,4.6vw,56px); font-weight:800; line-height:1.07; letter-spacing:-.028em; margin:16px 0 20px; }
   .hero h1 em{ font-style:normal; color:var(--accent); }
   .hero-sub{ color:var(--muted); font-size:clamp(16px,1.5vw,18.5px); line-height:1.65; max-width:540px; }
   .hero-cta{ display:flex; flex-wrap:wrap; gap:14px; margin-top:34px; }
-  .checks{ display:flex; flex-wrap:wrap; gap:10px 26px; margin-top:36px; color:var(--muted); font-size:14.5px; }
-  .checks li{ display:flex; align-items:center; gap:8px; }
-  .checks .ic{ width:17px; height:17px; color:var(--accent); stroke-width:2.2; }
+  .offer{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-top:32px; max-width:600px; }
+  .offer li{ display:flex; flex-direction:column; align-items:flex-start; gap:12px; padding:16px 16px 18px; border-radius:14px; background:rgba(255,255,255,.03); border:1px solid var(--line); }
+  .offer-ic{ width:38px; height:38px; border-radius:10px; display:grid; place-items:center; background:var(--accent-soft); color:var(--accent); border:1px solid rgba(43,212,192,.22); }
+  .offer-ic .ic{ width:19px; height:19px; }
+  .offer b{ display:block; font:700 14.5px/1.25 'Manrope',sans-serif; color:var(--text); letter-spacing:-.01em; }
+  .offer small{ display:block; margin-top:5px; color:var(--muted); font-size:13px; line-height:1.45; }
+  @media (max-width:640px){
+    .offer{ grid-template-columns:1fr; gap:10px; margin-top:30px; }
+    .offer li{ flex-direction:row; align-items:center; gap:14px; padding:13px 14px; }
+    .offer-ic{ flex-shrink:0; }
+  }
 
   .tilt{ perspective:1100px; width:min(430px,100%); aspect-ratio:1/1; margin-inline:auto; position:relative; }
   .tilt-rot{
@@ -215,6 +223,25 @@
   .tag{ display:inline-block; font:600 11.5px/1 'Inter',sans-serif; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); margin-bottom:12px; }
   .proj-body h3{ font-size:22px; font-weight:700; letter-spacing:-.015em; margin-bottom:8px; }
   .proj-body p{ color:var(--muted); font-size:15px; line-height:1.65; }
+  .frame img{ width:100%; height:100%; display:block; object-fit:cover; }
+  .proj-body{ display:flex; flex-direction:column; flex:1; }
+  .proj-meta{ display:flex; align-items:center; flex-wrap:wrap; gap:8px 12px; margin-bottom:12px; }
+  .proj-meta .tag{ margin-bottom:0; }
+  .status{ font:600 11px/1 'Inter',sans-serif; padding:5px 9px; border-radius:99px; border:1px solid var(--line-strong); color:var(--muted); }
+  .status.live{ color:var(--accent); border-color:rgba(43,212,192,.4); background:var(--accent-soft); }
+  .proj-link{ display:inline-flex; align-items:center; gap:8px; margin-top:auto; padding-top:20px; font:600 14.5px/1 'Inter',sans-serif; color:var(--accent); width:fit-content; }
+  .proj-link .ic{ width:16px; height:16px; transition:transform .2s; }
+  .proj-link:hover .ic{ transform:translateX(4px); }
+  .proj-wide{ grid-column:1 / -1; flex-direction:row; }
+  .proj-wide .frame{ flex:0 0 38%; aspect-ratio:auto; min-height:260px; border-bottom:0; border-right:1px solid var(--line); }
+  .proj-wide .proj-body{ justify-content:center; padding:32px 36px; }
+  .proj-wide .proj-body p{ max-width:560px; }
+  @media (max-width:980px){ .proj-wide .frame{ flex-basis:44%; } }
+  @media (max-width:620px){
+    .proj-wide{ flex-direction:column; }
+    .proj-wide .frame{ flex:none; aspect-ratio:16/10; min-height:0; border-right:0; border-bottom:1px solid var(--line); }
+    .proj-wide .proj-body{ padding:24px 26px 28px; justify-content:flex-start; }
+  }
 
   /* ---------- process ---------- */
   .steps{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:24px; }
@@ -643,17 +670,17 @@
     </div>
     <div class="container hero-grid">
       <div data-hero-copy>
-        <p class="eyebrow rv" data-hero-fade data-hero-eyebrow>Tecnologia para empresas</p>
-        <h1 class="rv" data-split style="--d:.08s">Soluções digitais <em>sob medida</em> para o seu negócio</h1>
-        <p class="hero-sub rv" data-hero-fade style="--d:.16s">Desenvolvemos sites, sistemas web, automações e soluções com inteligência artificial. Trabalhamos de perto com cada empresa, do planejamento ao lançamento.</p>
+        <p class="eyebrow rv" data-hero-fade data-hero-eyebrow>Araujo.IA · Tecnologia para empresas</p>
+        <h1 class="rv" data-split style="--d:.08s">Sites, sistemas e automações com IA para <em>sua empresa crescer</em></h1>
+        <p class="hero-sub rv" data-hero-fade style="--d:.16s">Você conta o problema do seu negócio e nós desenvolvemos a solução sob medida, do planejamento ao lançamento, com atendimento direto pelo WhatsApp.</p>
         <div class="hero-cta rv" data-hero-fade style="--d:.24s">
           <a href="#contato" class="btn btn-primary" data-lead-cta>Solicitar orçamento <svg class="ic"><use href="#i-arrow"/></svg></a>
-          <a href="#projetos" class="btn btn-ghost">Ver projetos</a>
+          <a href="#projetos" class="btn btn-ghost">Ver projetos prontos</a>
         </div>
-        <ul class="checks rv" data-hero-fade style="--d:.32s">
-          <li><svg class="ic"><use href="#i-check"/></svg>Projetos sob medida</li>
-          <li><svg class="ic"><use href="#i-check"/></svg>Atendimento próximo</li>
-          <li><svg class="ic"><use href="#i-check"/></svg>Tecnologia e IA aplicada</li>
+        <ul class="offer rv" data-hero-fade style="--d:.32s">
+          <li><span class="offer-ic"><svg class="ic"><use href="#i-globe"/></svg></span><span><b>Site que gera clientes</b><small>Para ser encontrado e receber contatos</small></span></li>
+          <li><span class="offer-ic"><svg class="ic"><use href="#i-layout"/></svg></span><span><b>Sistema sob medida</b><small>Para organizar pedidos, clientes e finanças</small></span></li>
+          <li><span class="offer-ic"><svg class="ic"><use href="#i-workflow"/></svg></span><span><b>Automação e IA</b><small>Para parar de repetir tarefas à mão</small></span></li>
         </ul>
       </div>
       <div class="tilt rv" data-hero-visual style="--d:.2s" aria-hidden="true">
@@ -764,9 +791,9 @@
       <div class="sec-head rv">
         <p class="eyebrow">Projetos</p>
         <h2 data-split>Projetos desenvolvidos</h2>
-        <p>Alguns dos trabalhos criados pela Araujo.IA para diferentes tipos de negócio.</p>
+        <p>Sites, sistemas e plataformas criados pela Araujo.IA para diferentes tipos de negócio. Onde há endereço público, você pode abrir e conferir.</p>
       </div>
-      <div class="grid-3">
+      <div class="grid-3 proj-grid">
 
         <article class="card proj rv">
           <div class="frame">
@@ -785,51 +812,131 @@
             </svg>
           </div>
           <div class="proj-body">
-            <span class="tag">Site institucional</span>
+            <div class="proj-meta"><span class="tag">Site institucional</span><span class="status live">No ar</span></div>
             <h3>Realiza Consultoria</h3>
-            <p>Presença digital profissional para apresentar os serviços da empresa e facilitar o contato com os clientes.</p>
+            <p>Site de uma correspondente bancária em financiamento habitacional, com os serviços da empresa e contato direto com os clientes.</p>
+            <a class="proj-link" href="https://realizaconsultoriaoficial.com.br" target="_blank" rel="noopener">Visitar o site <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
           </div>
         </article>
 
         <article class="card proj rv" style="--d:.07s">
           <div class="frame">
-            <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustração de plataforma web">
-              <rect width="400" height="250" fill="#0B1119"/>
-              <rect width="90" height="250" fill="#121A24"/>
-              <rect x="18" y="30" width="54" height="8" rx="3" fill="#2BD4C0"/>
-              <rect x="18" y="60" width="54" height="6" rx="3" fill="#394453"/>
-              <rect x="18" y="76" width="54" height="6" rx="3" fill="#394453"/>
-              <rect x="18" y="92" width="54" height="6" rx="3" fill="#394453"/>
-              <rect x="120" y="34" width="120" height="34" rx="6" fill="#151D27" stroke="#263040"/>
-              <rect x="256" y="34" width="120" height="34" rx="6" fill="#151D27" stroke="#263040"/>
-              <polyline points="120,180 160,150 200,165 240,110 280,130 320,90 360,105" fill="none" stroke="#2BD4C0" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
-              <rect x="120" y="90" width="256" height="120" rx="6" fill="none" stroke="#263040"/>
-            </svg>
+            <img src="projetos/finup.jpg" width="960" height="540" loading="lazy" decoding="async" alt="Painel do FinUP com receitas, despesas, gastos por categoria e próximos vencimentos">
           </div>
           <div class="proj-body">
-            <span class="tag">Plataforma web</span>
+            <div class="proj-meta"><span class="tag">Plataforma web</span></div>
             <h3>FinUP</h3>
-            <p>Plataforma para organizar e simplificar processos financeiros, com interface direta e objetiva.</p>
+            <p>Controle financeiro pessoal: receitas, despesas, contas, vencimentos, recorrentes, investimentos e relatórios em um painel claro, com modo escuro.</p>
+            <a class="proj-link" href="#contato" data-lead-cta>Quero algo assim <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
           </div>
         </article>
 
         <article class="card proj rv" style="--d:.14s">
           <div class="frame">
-            <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustração de sistema com inteligência artificial">
+            <img src="projetos/comanda-ia.jpg" width="960" height="640" loading="lazy" decoding="async" alt="Logotipo do Comanda IA, gestão inteligente para restaurantes">
+          </div>
+          <div class="proj-body">
+            <div class="proj-meta"><span class="tag">Sistema + IA</span></div>
+            <h3>Comanda IA</h3>
+            <p>Gestão inteligente para restaurantes, unindo pedidos, comanda digital e inteligência artificial em um único fluxo.</p>
+            <a class="proj-link" href="#contato" data-lead-cta>Quero algo assim <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div>
+        </article>
+
+        <article class="card proj rv">
+          <div class="frame">
+            <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustração de sistema de gestão de frotas">
               <rect width="400" height="250" fill="#0B1119"/>
-              <rect x="150" y="14" width="100" height="222" rx="14" fill="#121A24" stroke="#263040"/>
-              <rect x="160" y="34" width="80" height="150" rx="5" fill="#0B1119"/>
-              <rect x="168" y="44" width="64" height="8" rx="3" fill="#2BD4C0"/>
-              <rect x="168" y="62" width="64" height="26" rx="5" fill="#19212B" stroke="#2BD4C0"/>
-              <rect x="168" y="94" width="64" height="26" rx="5" fill="#19212B"/>
-              <rect x="168" y="126" width="64" height="26" rx="5" fill="#19212B"/>
-              <rect x="184" y="196" width="32" height="6" rx="3" fill="#394453"/>
+              <rect x="22" y="22" width="150" height="206" rx="8" fill="#121A24" stroke="#263040"/>
+              <rect x="36" y="40" width="70" height="8" rx="3" fill="#E8ECEF" opacity=".85"/>
+              <circle cx="42" cy="74" r="4" fill="#2BD4C0"/><rect x="54" y="71" width="96" height="7" rx="3" fill="#394453"/>
+              <circle cx="42" cy="98" r="4" fill="#2BD4C0"/><rect x="54" y="95" width="80" height="7" rx="3" fill="#394453"/>
+              <circle cx="42" cy="122" r="4" fill="#E0A63B"/><rect x="54" y="119" width="92" height="7" rx="3" fill="#394453"/>
+              <circle cx="42" cy="146" r="4" fill="#2BD4C0"/><rect x="54" y="143" width="70" height="7" rx="3" fill="#394453"/>
+              <circle cx="42" cy="170" r="4" fill="#2BD4C0"/><rect x="54" y="167" width="88" height="7" rx="3" fill="#394453"/>
+              <rect x="36" y="194" width="122" height="22" rx="5" fill="#19212B" stroke="#2BD4C0"/>
+              <rect x="188" y="22" width="190" height="206" rx="8" fill="#0F1620" stroke="#263040"/>
+              <path d="M208 196 C 236 150, 262 188, 290 128 S 340 96, 362 52" fill="none" stroke="#2BD4C0" stroke-width="2.5" stroke-dasharray="5 5" stroke-linecap="round"/>
+              <circle cx="208" cy="196" r="7" fill="#2BD4C0"/><circle cx="290" cy="128" r="6" fill="#19212B" stroke="#2BD4C0" stroke-width="2"/><circle cx="362" cy="52" r="7" fill="#2BD4C0"/>
             </svg>
           </div>
           <div class="proj-body">
-            <span class="tag">Sistema + IA</span>
-            <h3>Comanda IA</h3>
-            <p>Gestão inteligente para restaurantes, unindo pedidos, comanda digital e inteligência artificial em um único fluxo.</p>
+            <div class="proj-meta"><span class="tag">SaaS</span><span class="status dev">Em desenvolvimento</span></div>
+            <h3>FleetManager</h3>
+            <p>Gestão integrada de frotas, caminhões e transportadoras, em formato multiempresa: filiais, centros de custo, veículos, quilometragem, usuários e permissões.</p>
+            <a class="proj-link" href="#contato" data-lead-cta>Quero algo assim <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div>
+        </article>
+
+        <article class="card proj rv" style="--d:.07s">
+          <div class="frame">
+            <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustração de divisão de despesas da casa">
+              <rect width="400" height="250" fill="#0B1119"/>
+              <path d="M70 120 L130 66 L190 120 V196 H70 Z" fill="#121A24" stroke="#2BD4C0" stroke-width="2" stroke-linejoin="round"/>
+              <rect x="116" y="150" width="28" height="46" rx="3" fill="#19212B" stroke="#263040"/>
+              <rect x="222" y="58" width="150" height="16" rx="4" fill="#151D27" stroke="#263040"/>
+              <rect x="222" y="58" width="62" height="16" rx="4" fill="#2BD4C0"/>
+              <rect x="222" y="94" width="150" height="16" rx="4" fill="#151D27" stroke="#263040"/>
+              <rect x="222" y="94" width="94" height="16" rx="4" fill="#2BD4C0" opacity=".7"/>
+              <rect x="222" y="130" width="150" height="16" rx="4" fill="#151D27" stroke="#263040"/>
+              <rect x="222" y="130" width="48" height="16" rx="4" fill="#2BD4C0" opacity=".45"/>
+              <circle cx="232" cy="188" r="10" fill="#19212B" stroke="#2BD4C0"/><circle cx="262" cy="188" r="10" fill="#19212B" stroke="#2BD4C0"/><circle cx="292" cy="188" r="10" fill="#19212B" stroke="#2BD4C0"/>
+              <rect x="316" y="182" width="56" height="12" rx="3" fill="#394453"/>
+            </svg>
+          </div>
+          <div class="proj-body">
+            <div class="proj-meta"><span class="tag">Sistema web</span></div>
+            <h3>Casa em Dia</h3>
+            <p>Gestão financeira doméstica: despesas da casa, divisão justa das contas entre moradores, pagamentos, repasses, fechamento mensal e relatórios.</p>
+            <a class="proj-link" href="#contato" data-lead-cta>Quero algo assim <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div>
+        </article>
+
+        <article class="card proj rv" style="--d:.14s">
+          <div class="frame">
+            <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustração de plataforma de agentes de inteligência artificial">
+              <rect width="400" height="250" fill="#0B1119"/>
+              <g stroke="#263040" stroke-width="1.5" fill="none">
+                <path d="M200 125 L90 56"/><path d="M200 125 L310 56"/><path d="M200 125 L70 160"/><path d="M200 125 L330 160"/><path d="M200 125 L200 214"/>
+              </g>
+              <circle cx="200" cy="125" r="30" fill="#121A24" stroke="#2BD4C0" stroke-width="2.5"/>
+              <circle cx="200" cy="125" r="10" fill="#2BD4C0"/>
+              <circle cx="90" cy="56" r="15" fill="#19212B" stroke="#2BD4C0"/><circle cx="310" cy="56" r="15" fill="#19212B" stroke="#2BD4C0"/>
+              <circle cx="70" cy="160" r="15" fill="#19212B" stroke="#394453"/><circle cx="330" cy="160" r="15" fill="#19212B" stroke="#394453"/>
+              <circle cx="200" cy="214" r="15" fill="#19212B" stroke="#2BD4C0"/>
+            </svg>
+          </div>
+          <div class="proj-body">
+            <div class="proj-meta"><span class="tag">Plataforma de IA</span><span class="status dev">Em desenvolvimento</span></div>
+            <h3>Central de agentes de IA</h3>
+            <p>Plataforma multiagente que organiza tarefas, rotinas recorrentes e aprovações, com escritório 3D e publicação nas redes pelas APIs oficiais, sempre com aprovação humana.</p>
+            <a class="proj-link" href="#contato" data-lead-cta>Quero algo assim <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div>
+        </article>
+
+        <article class="card proj proj-wide rv">
+          <div class="frame">
+            <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustração de gráfico de velas de um simulador de mercado">
+              <rect width="400" height="250" fill="#0B1119"/>
+              <g stroke="#263040"><path d="M30 60 H380"/><path d="M30 110 H380"/><path d="M30 160 H380"/><path d="M30 210 H380"/></g>
+              <g stroke-width="2" stroke-linecap="round">
+                <path d="M62 150 V196" stroke="#2BD4C0"/><rect x="55" y="162" width="14" height="24" fill="#2BD4C0"/>
+                <path d="M100 120 V190" stroke="#E0556B"/><rect x="93" y="134" width="14" height="38" fill="#E0556B"/>
+                <path d="M138 108 V170" stroke="#2BD4C0"/><rect x="131" y="120" width="14" height="36" fill="#2BD4C0"/>
+                <path d="M176 96 V160" stroke="#2BD4C0"/><rect x="169" y="104" width="14" height="40" fill="#2BD4C0"/>
+                <path d="M214 90 V150" stroke="#E0556B"/><rect x="207" y="100" width="14" height="32" fill="#E0556B"/>
+                <path d="M252 82 V148" stroke="#2BD4C0"/><rect x="245" y="92" width="14" height="38" fill="#2BD4C0"/>
+                <path d="M290 62 V126" stroke="#2BD4C0"/><rect x="283" y="72" width="14" height="40" fill="#2BD4C0"/>
+                <path d="M328 58 V112" stroke="#E0556B"/><rect x="321" y="66" width="14" height="30" fill="#E0556B"/>
+              </g>
+              <path d="M40 176 L120 150 L200 126 L280 96 L360 74" fill="none" stroke="#E8ECEF" stroke-width="1.5" stroke-dasharray="4 5" opacity=".55"/>
+            </svg>
+          </div>
+          <div class="proj-body">
+            <div class="proj-meta"><span class="tag">Pesquisa e simulação</span><span class="status dev">Em desenvolvimento</span></div>
+            <h3>Northstar Trading Studio</h3>
+            <p>Estúdio de pesquisa e simulação de mercado: escritório com agentes especialistas, backtest em histórico real e motor de risco. Tudo em ambiente simulado, sem operar dinheiro real.</p>
+            <a class="proj-link" href="#contato" data-lead-cta>Quero algo assim <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
           </div>
         </article>
 
