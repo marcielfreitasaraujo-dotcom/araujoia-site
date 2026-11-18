@@ -48,7 +48,7 @@
     if (target === null || typeof target === 'undefined') return;
     e.preventDefault();
     // Seções com cena fixa começam exatamente no topo da tela; as demais descontam o cabeçalho.
-    var pinned = id === '#top' || id === '#transformacao' || id === '#solucoes' || id === '#sobre';
+    var pinned = id === '#top' || id === '#construcao' || id === '#transformacao' || id === '#solucoes' || id === '#sobre';
     if (lenis) lenis.scrollTo(target, { offset: pinned ? 0 : -84, duration: 1.3 });
     else if (target === 0) window.scrollTo({ top: 0, behavior: 'smooth' });
     else target.scrollIntoView({ behavior: 'smooth' });
@@ -194,6 +194,44 @@
         .to(q('[data-hero-copy]'), { y: -100, opacity: 0, ease: 'power1.in' }, 0.1)
         .to(q('[data-hero-visual]'), { scale: desktop ? 1.16 : 1.05, y: desktop ? -10 : -30, ease: 'none' }, 0)
         .to(q('[data-scroll-hint]'), { opacity: 0, duration: 0.15 }, 0);
+    });
+
+    /* CONSTRUÇÃO: o notebook e o celular se montam enquanto acendem Sites, Sistemas, Automação e IA */
+    scene('construcao', function () {
+      var sec = $('#construcao'); if (!sec) return;
+      var q = gsap.utils.selector(sec);
+      revealWords(q('h2 .wi'), { scrollTrigger: { trigger: sec, start: 'top 70%', toggleActions: 'play none none reverse' } });
+
+      var steps = q('[data-build-step]');
+      var current = -1;
+      var setStep = function (i) {
+        if (i === current) return;
+        current = i;
+        steps.forEach(function (s, k) { s.classList.toggle('is-on', k <= i); s.classList.toggle('is-now', k === i); });
+      };
+      setStep(0);
+      var path = q('[data-bd-path]')[0];
+      var len = path ? path.getTotalLength() : 0;
+      if (path) gsap.set(path, { strokeDasharray: len });
+
+      var tl = gsap.timeline({
+        defaults: { ease: 'power2.out' },
+        scrollTrigger: {
+          trigger: sec, start: desktop ? 'top top' : 'top 75%', end: desktop ? '+=260%' : 'bottom 75%',
+          scrub: 0.7, pin: desktop, invalidateOnRefresh: true,
+          onUpdate: function (self) { var p = self.progress; setStep(p < 0.28 ? 0 : p < 0.5 ? 1 : p < 0.78 ? 2 : 3); }
+        }
+      });
+      // fromTo: o estado final explícito é o mesmo do HTML sem JavaScript.
+      tl.fromTo(q('[data-bd-laptop]'), { y: 70, opacity: 0, rotateX: 16 }, { y: 0, opacity: 1, rotateX: 0, duration: 0.6 }, 0)
+        .fromTo(q('[data-bd-site]'), { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: 0.6, ease: 'none' }, 0.3)
+        .fromTo(q('[data-bd-sys]'), { opacity: 0 }, { opacity: 1, duration: 0.45 }, 1.0)
+        .fromTo(q('[data-bd-phone]'), { x: 110, y: 40, rotate: 10, opacity: 0 }, { x: 0, y: 0, rotate: 0, opacity: 1, duration: 0.6 }, 1.05)
+        .fromTo(path, { strokeDashoffset: len }, { strokeDashoffset: 0, duration: 0.55, ease: 'none' }, 1.8)
+        .fromTo(q('[data-bd-chip]'), { scale: 0.7, opacity: 0, y: 14 }, { scale: 1, opacity: 1, y: 0, stagger: 0.2, duration: 0.35 }, 1.9)
+        .fromTo(q('[data-bd-ai]'), { y: 36, opacity: 0, scale: 0.92 }, { y: 0, opacity: 1, scale: 1, duration: 0.5 }, 2.8)
+        .to(q('[data-bd-ai]'), { boxShadow: '0 0 0 1px #2BD4C0, 0 24px 60px -18px rgba(43,212,192,.6)', duration: 0.3 }, 3.3)
+        .fromTo(q('[data-build-bar]'), { scaleX: 0 }, { scaleX: 1, ease: 'none', duration: 3.6 }, 0);
     });
 
     /* ANTES E DEPOIS: o improviso voa até o quadro organizado */

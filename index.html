@@ -544,6 +544,57 @@
     html.gsap-on .scene-grid{ width:min(100% - 2*var(--gutter), var(--container)); }
   }
 
+  /* ---------- construção: notebook e celular se montam ao rolar ---------- */
+  .build{ position:relative; overflow:hidden; }
+  html.gsap-on .build{ min-height:100vh; display:flex; align-items:center; padding-block:96px 72px; }
+  .build-grid{ display:grid; grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr); gap:clamp(32px,5vw,72px); align-items:center; }
+  .build-copy h2{ font-size:clamp(28px,3.4vw,44px); font-weight:700; line-height:1.12; letter-spacing:-.02em; margin:14px 0 28px; }
+  .build-steps{ list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+  .build-steps li{ display:flex; gap:16px; align-items:flex-start; padding:14px 16px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.02); transition:opacity .35s, border-color .35s, background-color .35s; }
+  html.gsap-on .build-steps li{ opacity:.42; }
+  html.gsap-on .build-steps li.is-on{ opacity:1; }
+  .build-steps li.is-now{ border-color:rgba(43,212,192,.45); background:var(--accent-soft); }
+  .bs-n{ font:700 13px/1.6 'Manrope',sans-serif; color:var(--accent); min-width:22px; }
+  .build-steps b{ display:block; font:700 17px/1.3 'Manrope',sans-serif; color:var(--text); }
+  .build-steps small{ display:block; color:var(--muted); font-size:14.5px; line-height:1.5; margin-top:2px; }
+  .build-bar{ display:none; height:2px; background:var(--line); border-radius:2px; margin-top:22px; overflow:hidden; }
+  html.gsap-on .build-bar{ display:block; }
+  .build-bar span{ display:block; height:100%; background:var(--accent); transform-origin:left; }
+  .build-stage{ position:relative; aspect-ratio:6/5; perspective:1200px; }
+  .bd-laptop{ position:absolute; left:0; top:6%; width:84%; transform-origin:50% 100%; }
+  .bd-screen{ position:relative; aspect-ratio:16/10; border-radius:14px 14px 4px 4px; border:10px solid #151C26; border-bottom-width:14px; background:#0D131B; overflow:hidden; box-shadow:0 40px 90px -40px rgba(0,0,0,.8); }
+  .bd-shot{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:top center; }
+  .bd-base{ height:14px; margin:0 -5%; background:#222B37; border-radius:0 0 14px 14px; border-top:1px solid #2E3946; }
+  .bd-phone{ position:absolute; right:0; bottom:2%; width:27%; aspect-ratio:585/1266; border-radius:26px; border:7px solid #151C26; overflow:hidden; background:#0D131B; box-shadow:0 30px 70px -25px rgba(0,0,0,.85); }
+  .bd-phone img{ width:100%; height:100%; object-fit:cover; object-position:top; }
+  .bd-flow{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; }
+  .bd-flow path{ fill:none; stroke:var(--accent); stroke-width:2; stroke-linecap:round; opacity:.75; }
+  .bd-chip{ position:absolute; display:inline-flex; align-items:center; gap:8px; padding:9px 13px; font-size:13.5px; font-weight:600; color:var(--text); background:rgba(10,16,24,.92); border:1px solid var(--line-strong); border-radius:999px; box-shadow:0 14px 30px -14px rgba(0,0,0,.7); white-space:nowrap; }
+  .bd-chip .ic{ width:16px; height:16px; color:var(--accent); }
+  .bd-chip-a{ right:4%; top:0; }
+  .bd-chip-b{ left:-2%; top:64%; }
+  .bd-chip-c{ left:28%; bottom:3%; }
+  .bd-ai{ position:absolute; right:20%; top:42%; display:flex; gap:12px; align-items:center; max-width:290px; padding:14px 16px; border-radius:16px; background:rgba(10,16,24,.95); border:1px solid rgba(43,212,192,.4); box-shadow:0 24px 60px -24px rgba(0,0,0,.8); }
+  .bd-ai-ic{ flex:none; display:grid; place-items:center; width:38px; height:38px; border-radius:10px; background:var(--accent-soft); color:var(--accent); }
+  .bd-ai b{ display:block; font-size:14px; color:var(--text); }
+  .bd-ai small{ display:block; font-size:12.5px; color:var(--muted); line-height:1.45; margin-top:2px; }
+  .bd-caption{ margin:14px 0 0; font-size:12.5px; color:var(--muted); text-align:right; }
+  @media (max-width:860px){
+    html.gsap-on .build{ min-height:0; display:block; padding-block:72px; }
+    .build-grid{ grid-template-columns:1fr; }
+    .build-stage{ aspect-ratio:1/1; margin-top:8px; }
+    .bd-laptop{ width:92%; top:4%; }
+    .bd-screen{ border-width:6px; border-bottom-width:9px; }
+    .bd-phone{ width:30%; border-width:5px; border-radius:18px; }
+    .bd-chip{ font-size:11.5px; padding:6px 9px; gap:6px; }
+    .bd-chip .ic{ width:13px; height:13px; }
+    .bd-chip-b{ left:0; top:71%; }
+    .bd-chip-c{ left:14%; bottom:0; }
+    .bd-ai{ left:3%; right:auto; top:36%; max-width:210px; padding:10px 12px; gap:9px; }
+    .bd-ai-ic{ width:30px; height:30px; }
+    .bd-ai small{ font-size:11.5px; }
+  }
+
   /* ---------- intro ---------- */
   #intro{
     position:fixed; inset:0; z-index:1000; background:#05070A; overflow:hidden; display:none;
@@ -694,6 +745,41 @@
       </div>
     </div>
     <div class="scroll-hint" data-scroll-hint aria-hidden="true">Role para explorar <span class="arr">↓</span></div>
+  </section>
+
+  <!-- ============ CONSTRUÇÃO: notebook e celular se montam ao rolar ============ -->
+  <section class="build" id="construcao" aria-labelledby="build-title">
+    <div class="container build-grid">
+      <div class="build-copy">
+        <p class="eyebrow">Do zero ao funcionando</p>
+        <h2 id="build-title" data-split>Uma equipe para construir tudo o que a sua empresa precisa.</h2>
+        <ol class="build-steps">
+          <li class="is-on" data-build-step><span class="bs-n">01</span><span><b>Sites</b><small>Sua empresa encontrada na internet e recebendo contatos.</small></span></li>
+          <li class="is-on" data-build-step><span class="bs-n">02</span><span><b>Sistemas</b><small>Pedidos, clientes e finanças organizados em um só lugar.</small></span></li>
+          <li class="is-on" data-build-step><span class="bs-n">03</span><span><b>Automação</b><small>Tarefas repetidas rodando sozinhas, sem digitar duas vezes.</small></span></li>
+          <li class="is-on" data-build-step><span class="bs-n">04</span><span><b>Inteligência artificial</b><small>Respostas e análises mais rápidas no dia a dia.</small></span></li>
+        </ol>
+        <div class="build-bar" aria-hidden="true"><span data-build-bar></span></div>
+      </div>
+      <div>
+        <div class="build-stage" aria-hidden="true">
+          <div class="bd-laptop" data-bd-laptop>
+            <div class="bd-screen">
+              <img class="bd-shot" data-bd-site src="projetos/realiza.jpg" width="1100" height="688" alt="" loading="lazy" decoding="async">
+              <img class="bd-shot" data-bd-sys src="projetos/finup.jpg" width="1100" height="688" alt="" loading="lazy" decoding="async">
+            </div>
+            <div class="bd-base"></div>
+          </div>
+          <div class="bd-phone" data-bd-phone><img src="projetos/finup-celular.jpg" width="585" height="1266" alt="" loading="lazy" decoding="async"></div>
+          <svg class="bd-flow" viewBox="0 0 600 500" preserveAspectRatio="none"><path data-bd-path d="M250 190 C 360 190, 420 300, 500 330"/></svg>
+          <span class="bd-chip bd-chip-a" data-bd-chip><svg class="ic"><use href="#i-whatsapp"/></svg>Novo pedido recebido</span>
+          <span class="bd-chip bd-chip-b" data-bd-chip><svg class="ic"><use href="#i-check"/></svg>Cliente avisado na hora</span>
+          <span class="bd-chip bd-chip-c" data-bd-chip><svg class="ic"><use href="#i-layout"/></svg>Relatório gerado sozinho</span>
+          <div class="bd-ai" data-bd-ai><span class="bd-ai-ic"><svg class="ic"><use href="#i-cpu"/></svg></span><span><b>Assistente com IA</b><small>Resumo do dia pronto: pedidos, clientes e pendências.</small></span></div>
+        </div>
+        <p class="bd-caption">Telas reais de projetos da Araujo.IA</p>
+      </div>
+    </div>
   </section>
 
   <!-- ============ ANTES E DEPOIS ============ -->
